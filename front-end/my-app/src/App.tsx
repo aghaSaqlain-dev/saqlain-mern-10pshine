@@ -2,15 +2,17 @@ import React from 'react';
 import './App.css';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { UserProvider } from './context/useAuth';
+import { UserProvider } from './context/useAuth.tsx';
+import { Outlet } from 'react-router-dom';
 
 const App: React.FC = () => {
 
   return (
     <>
-    <UserProvider> 
+    <UserProvider>
+      <Outlet />
       <ToastContainer />
-    </UserProvider>  
+    </UserProvider>
     </>
   );
 };

@@ -1,20 +1,17 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import { BrowserRouter } from 'react-router-dom';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { RouterProvider } from "react-router-dom";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
+import { router } from "./Routes/Routes.tsx";
 
-const rootElement = document.getElementById('root');
-if (!rootElement) throw new Error('Root element not found');
-
-const root = ReactDOM.createRoot(rootElement as HTMLElement);
+const root = ReactDOM.createRoot(
+  document.getElementById("root") as HTMLElement
+);
 
 root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+   <React.StrictMode>
+   <RouterProvider router={router} />
   </React.StrictMode>
 );
 
