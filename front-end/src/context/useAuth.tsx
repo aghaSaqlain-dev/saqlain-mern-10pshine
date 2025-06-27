@@ -1,9 +1,9 @@
 import { createContext, useEffect, useState } from "react";
 import { UserProfile , UserContextType} from "../Models/User";
 import { useNavigate } from "react-router-dom";
-import { loginAPI, registerAPI } from "../services/AuthServices.tsx";
+import { loginAPI, registerAPI } from "../services/AuthServices";
 import { toast } from "react-toastify";
-import React from "react";
+import * as React from "react";
 import axios from "axios";
 
 

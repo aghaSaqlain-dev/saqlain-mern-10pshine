@@ -1,10 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
-import App from "../App.tsx";
-import LoginPage from "../components/Login/LoginPage.tsx";
-import ProtectedRoute from "./ProtectedRoute.tsx";
-import RegistrationPage from "../components/Registration/RegistrationPage.tsx";
-import Dashboard from "../components/Dashboard/Dashboard.tsx";
-import AuthRedirect from "./AuthRedirect.tsx";
+import App from "../App";
+import LoginPage from "../components/Login/LoginPage";
+import ProtectedRoute from "./ProtectedRoute";
+import RegistrationPage from "../components/Registration/RegistrationPage";
+import Dashboard from "../components/Dashboard/Dashboard";
+import AuthRedirect from "./AuthRedirect";
 
 export const router = createBrowserRouter([
   {

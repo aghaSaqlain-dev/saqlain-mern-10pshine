@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { API_LOGIN } from '../variables/APIS.tsx';
-import { UserProfileToken } from '../Models/User.ts';
-import { handleError } from '../Helpers/ErrorHandler.tsx';
+import { API_LOGIN } from '../variables/APIS';
+import { UserProfileToken } from '../Models/User';
+import { handleError } from '../Helpers/ErrorHandler';
 
 
 export const loginAPI = async (username: string, password: string) =>{
