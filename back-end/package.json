@@ -1,14 +1,22 @@
 {
   "name": "back-end",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+     "start": "ts-node src/index.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^5.1.0"
+  },
+  "keywords": [],
+  "description": "",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
