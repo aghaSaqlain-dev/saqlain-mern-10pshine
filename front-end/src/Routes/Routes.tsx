@@ -15,7 +15,8 @@ export const router = createBrowserRouter([
       {
         element: <AuthRedirect />,
         children: [
-          { index: true, element: <LoginPage /> },
+          // { index: true, element: <LoginPage /> },
+          { index: true, element: <Dashboard /> },
           { path: "login", element: <LoginPage /> },
           { path: "registration", element: <RegistrationPage /> },
         ]

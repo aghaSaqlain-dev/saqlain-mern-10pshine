@@ -45,7 +45,7 @@ const RegistrationPage = (props: Props) => {
         </div>
         {errors.userName && <span className="login-error">{errors.userName}</span>}
         <div className="login-input-group">
-          <span className="login-input-icon">&#9993;</span>
+          <span className="login-input-icon" role="img" aria-label="email">📧</span>
           <input
             type="email"
             placeholder="Email ID"
