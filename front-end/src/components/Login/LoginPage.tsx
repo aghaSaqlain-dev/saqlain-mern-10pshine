@@ -4,6 +4,7 @@ import { useAuth } from "../../context/useAuth";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import './LoginPage.css';
 
 type Props = {};
 
@@ -49,34 +50,49 @@ const handleSubmit = (e: React.FormEvent) => {
   };
   
   return (
-    <form onSubmit={handleSubmit} className="login-form">
-      <div>
-        <label htmlFor="userName">Username</label>
-        <input
-          id="userName"
-          type="text"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          autoComplete="username"
-        />
-        {errors.userName && <span>{errors.userName}</span>}
-      </div>
-      <div>
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="current-password"
-        />
-        {errors.password && <span>{errors.password}</span>}
-      </div>
-      <button type="submit">Login</button>
-      <p>
-        Don't have an account? <Link to="/registration">Register</Link>
-      </p>
-    </form>
+    <div className="login-bg">
+      <form onSubmit={handleSubmit} className="login-form-card">
+        <div className="login-avatar">
+          <span className="login-avatar-icon">&#128100;</span>
+        </div>
+        <div className="login-input-group">
+          <span className="login-input-icon">&#128100;</span>
+          <input
+            id="userName"
+            type="text"
+            placeholder="Email ID"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            autoComplete="username"
+            className="login-input"
+          />
+        </div>
+        {errors.userName && <span className="login-error">{errors.userName}</span>}
+        <div className="login-input-group">
+          <span className="login-input-icon">&#128274;</span>
+          <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            className="login-input"
+          />
+        </div>
+        {errors.password && <span className="login-error">{errors.password}</span>}
+        <div className="login-options">
+          <label className="login-remember">
+            <input type="checkbox" /> Remember me
+          </label>
+          <span className="login-forgot">Forgot Password?</span>
+        </div>
+        <button type="submit" className="login-btn">LOGIN</button>
+        <p className="login-register-link">
+          Don't have an account? <Link to="/registration">Register</Link>
+        </p>
+      </form>
+    </div>
   );
 };
 
