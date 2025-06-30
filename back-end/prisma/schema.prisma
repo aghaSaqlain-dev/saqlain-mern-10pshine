@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String?   @db.VarChar(100)
+  email        String    @unique @db.VarChar(255)
+  password_hash String
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @default(now())
+  folders      Folder[]
+  notes        Note[]
+  comments     Comment[]
+  noteHistories NoteHistory[] @relation("UserNoteHistories")
+  noteShares   NoteShare[]
+  mediaAttachments MediaAttachment[]
+}
+
+model Folder {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(255)
+  domain     String?  @db.VarChar(255)
+  user_id    Int?
+  user       User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  notes      Note[]
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+}
+
+model Note {
+  id         Int      @id @default(autoincrement())
+  title      String?  @db.VarChar(255)
+  content    String?
+  folder_id  Int?
+  folder     Folder?  @relation(fields: [folder_id], references: [id], onDelete: SetNull)
+  user_id    Int?
+  user       User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  is_pinned  Boolean  @default(false)
+  is_trashed Boolean  @default(false)
+  is_shared  Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  noteTags   NoteTag[]
+  noteHistories NoteHistory[]
+  noteShares NoteShare[]
+  comments   Comment[]
+  mediaAttachments MediaAttachment[]
+}
+
+model Tag {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique @db.VarChar(100)
+  noteTags NoteTag[]
+}
+
+model NoteTag {
+  note_id Int
+  tag_id  Int
+  note    Note   @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  tag     Tag    @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@id([note_id, tag_id])
+}
+
+model NoteHistory {
+  id         Int      @id @default(autoincrement())
+  note_id    Int
+  note       Note     @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  content    String?
+  updated_by Int?
+  user       User?    @relation("UserNoteHistories", fields: [updated_by], references: [id])
+  updated_at DateTime @default(now())
+}
+
+model NoteShare {
+  note_id    Int
+  user_id    Int
+  note       Note     @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  permission Permission
+
+  @@id([note_id, user_id])
+}
+
+enum Permission {
+  view
+  edit
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  note_id    Int
+  note       Note     @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  author_id  Int
+  author     User     @relation(fields: [author_id], references: [id], onDelete: Cascade)
+  content    String?
+  created_at DateTime @default(now())
+}
+
+model MediaAttachment {
+  id         Int      @id @default(autoincrement())
+  note_id    Int
+  note       Note     @relation(fields: [note_id], references: [id], onDelete: Cascade)
+  user_id    Int?
+  user       User?    @relation(fields: [user_id], references: [id])
+  file_url   String?
+  file_type  String?  @db.VarChar(50)
+  uploaded_at DateTime @default(now())
+}

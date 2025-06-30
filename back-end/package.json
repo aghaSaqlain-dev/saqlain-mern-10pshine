@@ -4,11 +4,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-     "start": "ts-node src/index.ts"
+    "start": "ts-node src/index.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^6.10.1",
+    "body-parser": "^2.2.0",
+    "dotenv": "^17.0.0",
     "express": "^5.1.0"
   },
   "keywords": [],
@@ -16,6 +19,7 @@
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.4",
+    "prisma": "^6.10.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
