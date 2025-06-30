@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import express, {Request, Response} from 'express';
 import { NextFunction } from 'express';
 import testRoute from './routes/testRoute';
+import authRoute from './routes/authRoute';
 
 const app = express();
 
@@ -13,6 +14,12 @@ app.use(bodyParser.json({ limit: '50mb', type: 'application/json' }));
 const port = process.env.PORT || 3001;
 
 app.use('/api', testRoute);
+
+/************************API ROUTES*******************/
+
+app.use('/api/auth',authRoute)
+
+/*****************************************************/
 
 
 app.get('/', (req: Request, res: Response) => {

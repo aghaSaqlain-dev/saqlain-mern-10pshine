@@ -10,14 +10,18 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.10.1",
+    "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "dotenv": "^17.0.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   },
   "keywords": [],
   "description": "",
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.0.4",
     "prisma": "^6.10.1",
     "ts-node": "^10.9.2",
