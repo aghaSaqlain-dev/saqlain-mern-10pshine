@@ -3,6 +3,8 @@ import express, {Request, Response} from 'express';
 import { NextFunction } from 'express';
 import testRoute from './routes/testRoute';
 import authRoute from './routes/authRoute';
+import folderRoute from './routes/folderRoute';
+import notesRoute from './routes/notesRoute';
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.use('/api', testRoute);
 /************************API ROUTES*******************/
 
 app.use('/api/auth',authRoute)
+app.use('/api', folderRoute)
+app.use('/api', notesRoute)
 
 /*****************************************************/
 
