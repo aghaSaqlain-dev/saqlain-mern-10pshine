@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_LOGIN } from '../variables/APIS';
+import { API_LOGIN, API_REGISTER } from '../variables/APIS';
 import { UserProfileToken } from '../Models/User';
 import { handleError } from '../Helpers/ErrorHandler';
 
@@ -7,11 +7,10 @@ import { handleError } from '../Helpers/ErrorHandler';
 export const loginAPI = async (username: string, password: string) =>{
     try{
         const res = await axios.post<UserProfileToken>(API_LOGIN, {
-            username: username, // backend expects unique 'username'
-            password:password
+            email: username, // backend expects unique 'username'
+            password: password
         })
-        //the res should contain the token, username, and email
-
+        //the res should contain the token, id, username, and email
         return res;
     }catch(error) {
         handleError(error);
@@ -20,7 +19,7 @@ export const loginAPI = async (username: string, password: string) =>{
 
 export const registerAPI = async (email:string ,username: string, password: string) =>{
     try{
-        const res = await axios.post<UserProfileToken>(API_LOGIN, {
+        const res = await axios.post<UserProfileToken>(API_REGISTER, {
             email: email, // backend expects unique 'email'
             username: username, // backend expects unique 'username'
             password:password,

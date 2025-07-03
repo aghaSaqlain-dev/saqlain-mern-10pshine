@@ -5,14 +5,16 @@ import testRoute from './routes/testRoute';
 import authRoute from './routes/authRoute';
 import folderRoute from './routes/folderRoute';
 import notesRoute from './routes/notesRoute';
+import {rateLimiter} from './middlware/auth';
+import cors from 'cors';
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb', type: 'application/json' }));
-
-
+app.use(rateLimiter)
+app.use(cors({})); // Enable CORS for all routes
 const port = process.env.PORT || 3001;
 
 app.use('/api', testRoute);

@@ -38,18 +38,18 @@ export const UserProvider = ({ children }: Props) => {
   ) => {
     await registerAPI(email, username, password)
       .then((res) => {
-        if (res) {
-          localStorage.setItem("token", res?.data.token);
-          const userObj = {
-            userName: res?.data.userName,
-            email: res?.data.email,
-          };
-          localStorage.setItem("user", JSON.stringify(userObj));
-          setToken(res?.data.token!);
-          setUser(userObj!);
-          toast.success("registered Successfully!");
-          navigate("/login");
-        }
+        // if (res) {
+        //   localStorage.setItem("token", res?.data.token);
+        //   const userObj = {
+        //     userName: res?.data.userName,
+        //     email: res?.data.email,
+        //   };
+        //   localStorage.setItem("user", JSON.stringify(userObj));
+        //   setToken(res?.data.token!);
+        //   setUser(userObj!);
+        //   toast.success("registered Successfully!");
+        //   navigate("/login");
+        // }
       })
       .catch((e) => toast.warning("Server error occured"));
   };
@@ -60,8 +60,9 @@ export const UserProvider = ({ children }: Props) => {
         if (res) {
           localStorage.setItem("token", res?.data.token); //jwt 
           const userObj = {
-            userName: res?.data.userName,
-            email: res?.data.email,
+            userId: res?.data.user.id,
+            userName: res?.data.user.name,
+            email: res?.data.user.email,
           };
           localStorage.setItem("user", JSON.stringify(userObj));
           setToken(res?.data.token!);
@@ -74,7 +75,7 @@ export const UserProvider = ({ children }: Props) => {
   };
 
   const isLoggedIn = (): boolean => {
-    return !!user;
+    return !!token && !!user;
   };
 
   const logout = () => {

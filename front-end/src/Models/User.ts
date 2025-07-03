@@ -1,10 +1,14 @@
 export type UserProfileToken = {
-  userName: string;
-  email: string;
+  user:{
+    id: number;
+    name: string;
+    email: string;
+  }
   token: string;
 };
 
 export type UserProfile = {
+  userId : number;
   userName: string;
   email: string;
 };
