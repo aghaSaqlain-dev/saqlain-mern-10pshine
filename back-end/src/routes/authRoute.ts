@@ -1,10 +1,11 @@
 import express  from "express";
 import asyncHandler from "../utils/asyncHandler";
-import { registerUser,loginUser } from "../controllers/authController";
+import { sendOtp,verifyOtp,loginUser } from "../controllers/authController";
 
 const router = express.Router();
 
-router.post("/register", asyncHandler(registerUser));
+router.post("/send-otp", asyncHandler(sendOtp));
+router.post("/verify-otp", asyncHandler(verifyOtp));
 router.post("/login", asyncHandler(loginUser));
 // router.post("/logout", logoutUser);
 // router.get("/me", getCurrentUser);

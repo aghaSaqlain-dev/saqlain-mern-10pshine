@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_LOGIN, API_REGISTER } from '../variables/APIS';
+import { API_LOGIN, API_REGISTER, API_VERIFY_OTP } from '../variables/APIS';
 import { UserProfileToken } from '../Models/User';
 import { handleError } from '../Helpers/ErrorHandler';
 
@@ -27,6 +27,17 @@ export const registerAPI = async (email:string ,username: string, password: stri
         //the res should contain the token, username, and email
         return res;
     }catch(error) {
+        handleError(error);
+    }
+}
+export const verifyOTPAPI = async (email: string, otp: string) => {
+    try {
+        const res = await axios.post<UserProfileToken>(API_VERIFY_OTP, {
+            email,
+            otp
+        });
+        return res;
+    } catch (error) {
         handleError(error);
     }
 }

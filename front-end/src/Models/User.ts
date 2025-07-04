@@ -16,7 +16,8 @@ export type UserProfile = {
 export type UserContextType = {
   user: UserProfile | null;
   token: string | null;
-  registerUser: (email: string, username: string, password: string) => void;
+  requestOtp: (email: string, username: string, password: string ) => void;
+  verifyOtpAndRegister: (email: string, otp: string) => void;
   loginUser: (username: string, password: string) => void;
   logout: () => void;
   isLoggedIn: () => boolean;

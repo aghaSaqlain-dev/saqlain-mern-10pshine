@@ -2,30 +2,73 @@ import { Request, Response } from "express";
 import { PrismaClient } from '../../generated/prisma';
 import { hashPass, comparePassword } from '../utils/passHandler';
 import jwt from "jsonwebtoken";
+import redis from '../utils/redisClient';
+import { sendEmail } from "../services/sendEmail";
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || "dev_secret";
 
-export const registerUser = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password)
-    return res.status(400).json({ error: "Name, Email, and password are required." });
-
+export const sendOtp = async (req: Request, res: Response) => {
+  const { email, username, password } = req.body;
+  if (!email || !username || !password) {
+    return res.status(400).json({ error: "Email, username, and password are required." });
+  }
   try {
+    // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser)
+    if (existingUser) {
       return res.status(409).json({ error: "User already exists." });
-    const hashedPassword = await hashPass(password); 
+    }
+
+    const hashedPassword = await hashPass(password);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store registration data and OTP in Redis
+    await redis.setEx(
+      `register:${email}`,
+      60, // 1 minutes
+      JSON.stringify({ username, hashedPassword, otp })
+    );
+
+    const text = `Your OTP code is ${otp}. It is valid for 1 minute.`;
+    const subject = 'Your OTP Code';
+
+    await sendEmail(email, subject, text);
+
+    res.json({ message: 'OTP sent to email' });
+  } catch (error) {
+    console.error("Error in sendOtp:", error);
+    return res.status(500).json({ error: "Failed to send OTP email." });
+  }
+};
+
+export const verifyOtp = async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+  try {
+    const regData = await redis.get(`register:${email}`);
+    if (!regData) {
+      return res.status(400).json({ error: 'OTP expired or registration not found.' });
+    }
+    const { username, hashedPassword, otp: storedOtp } = JSON.parse(regData);
+    if (storedOtp !== otp) {
+      return res.status(400).json({ error: 'Invalid OTP.' });
+    }
+
+    // Create user in DB
     const user = await prisma.user.create({
-      data: { name, email, password_hash: hashedPassword },
+      data: { name: username, email, password_hash: hashedPassword },
     });
 
+    // Clean up Redis
+    await redis.del(`register:${email}`);
+
     res.status(201).json({
-      message: "User registered successfully.",
+      message: 'Registration successful.',
       user: { id: user.id, name: user.name, email: user.email },
     });
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message });
+    console.error("Error in verifyOtp:", error);
+    res.status(500).json({ error: "Failed to verify OTP." });
   }
 };
 
@@ -54,11 +97,6 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-// export const logoutUser = async (req: Request, res: Response) => {
-//   // For stateless JWT, logout is handled on client by deleting token.
-//   // Optionally, you can implement token blacklisting here.
-//   res.json({ message: "Logged out successfully." });
-// };
 
 // export const getCurrentUser = async (req: Request, res: Response) => {
 //   // Expect JWT in Authorization header: Bearer <token>
