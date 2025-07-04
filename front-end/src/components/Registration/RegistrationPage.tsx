@@ -82,7 +82,7 @@ const handleResendOtp = async () => {
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isVerifyingOtp) return; // Prevent double submit
+    if (isVerifyingOtp) return; 
     setIsVerifyingOtp(true);
 
     if (!otp) {
@@ -98,7 +98,6 @@ const handleResendOtp = async () => {
     }
     await verifyOtpAndRegister(email, otp);
     setIsVerifyingOtp(false);
-    // Optionally reset form state here
   };
 
   return (
