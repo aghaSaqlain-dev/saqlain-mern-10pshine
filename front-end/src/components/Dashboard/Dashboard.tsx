@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import Sidebar from '../Sidebar/Sidebar';
+import { EditorProvider } from '../../context/editorContext';
+import TiptapEditor from '../../services/TiptapEditor';
+import MenuBar from '../editorMenuBar/menuBar';
 
 type Props = {}
 
 const Dashboard = (props: Props) => {
   const [collapsed, setCollapsed] = useState(true);
 
-  return (
+ return (
     <div style={{
       display: 'flex',
       height: '100vh',
@@ -40,8 +43,10 @@ const Dashboard = (props: Props) => {
             transition: 'box-shadow 0.3s, border-radius 0.3s',
           }}
         >
-          {/* Place your Tiptap editor here */}
-          <h2>Your Tiptap Editor Goes Here</h2>
+          <EditorProvider>
+            <MenuBar />
+            <TiptapEditor />
+          </EditorProvider>
         </div>
       </div>
     </div>
