@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Color from '@tiptap/extension-color';
 import TextStyle from '@tiptap/extension-text-style';
-import Highlight from '@tiptap/extension-highlight';
+import { Highlight } from '../Helpers/highlight';
 
 type EditorContextType = {
   editor: Editor | null;
@@ -18,7 +18,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       StarterKit,
       TextStyle,   
       Color,
-      Highlight,
+      Highlight.configure({multicolor: true}),
       Placeholder.configure({
         placeholder: 'Start taking notes...',
       }),

@@ -163,17 +163,25 @@ const MenuBar: React.FC = () => {
         >
           Redo
         </button>
-        <button
-          onClick={() => editor.chain().focus().setColor('#958DF1').run()}
-          className={editor.isActive('textStyle', { color: '#958DF1' }) ? 'is-active' : ''}
-        >
-          Purple
-        </button>
        <button
-  onClick={() => editor.chain().focus().toggleHighlight({ color: '#FFEB3B' }).run()}
-  className={editor.isActive('highlight', { color: '#FFEB3B' }) ? 'is-active' : ''}
+  onClick={() => editor.chain().focus().setHighlight({ color: '#FFEB3B' }).run()}
 >
-  Highlight
+  Yellow
+</button>
+<button
+  onClick={() => editor.chain().focus().setHighlight({ color: '#90EE90' }).run()}
+>
+  Green
+</button>
+<button
+  onClick={() => editor.chain().focus().setHighlight({ color: '#ADD8E6' }).run()}
+>
+  Blue
+</button>
+<button
+  onClick={() => editor.chain().focus().unsetHighlight().run()}
+>
+  Remove Highlight
 </button>
       </div>
     </div>
