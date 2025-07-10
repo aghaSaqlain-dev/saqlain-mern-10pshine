@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "@tiptap/extension-placeholder": "^2.25.0",
-    "@tiptap/react": "^2.25.0",
-    "@tiptap/starter-kit": "^2.25.0"
-  }
-}

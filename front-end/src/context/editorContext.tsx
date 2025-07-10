@@ -5,6 +5,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Color from '@tiptap/extension-color';
 import TextStyle from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
+
 type EditorContextType = {
   editor: Editor | null;
 };
@@ -15,14 +16,15 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const editor = useEditor({
     extensions: [
       StarterKit,
-      TextStyle,
+      TextStyle,   
       Color,
-      Highlight, 
+      Highlight,
       Placeholder.configure({
         placeholder: 'Start taking notes...',
       }),
     ],
     content: '',
+    autofocus: true,
     editable: true,
   });
 
