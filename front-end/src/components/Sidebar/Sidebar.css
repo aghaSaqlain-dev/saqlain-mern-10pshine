@@ -10,7 +10,8 @@
   margin: 0;
   margin-top: .5rem;
   transition: width 0.2s, min-width 0.2s;
-  position: relative;
+  position: sticky;   /* <-- Make sidebar sticky */
+  top: 0;             /* <-- Stick to the top */
   margin-left: 1rem;
 }
 

@@ -4,3 +4,22 @@
   background: transparent !important;
   outline: none !important;
 }
+.tiptap-page {
+   border: none !important;
+  box-shadow: none !important;
+  width: 794px;
+  min-height: 1123px;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  border-radius: 8px;
+  padding: 48px 40px;
+  margin: 32px auto;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+    border-radius: 0 !important;
+
+}
+.body{
+  border: none !important;
+}

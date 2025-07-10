@@ -4,50 +4,19 @@ import { EditorProvider } from '../../context/editorContext';
 import TiptapEditor from '../../services/TiptapEditor';
 import MenuBar from '../editorMenuBar/menuBar';
 
-type Props = {}
-
-const Dashboard = (props: Props) => {
+const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(true);
 
- return (
-    <div style={{
-      display: 'flex',
-      height: '100vh',
-      background: '#f7f7f7'
-    }}>
+  return (
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#f0f0f0' }}>
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'padding-left 0.3s cubic-bezier(.4,2,.6,1), background 0.3s',
-          paddingLeft: collapsed ? 0 : 50, 
-        }}
-      >
-        <div
-          style={{
-            width: '100%',
-            maxWidth: 1100, 
-            height: '90vh', 
-            margin: '0 auto',
-            background: '#fff',
-            borderRadius: 16,
-            minHeight: 600,
-            boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
-            padding: 40,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-            transition: 'box-shadow 0.3s, border-radius 0.3s',
-          }}
-        >
-          <EditorProvider>
-            <MenuBar />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        <EditorProvider>
+          <MenuBar />
+          <div style={{ flex: 1, overflow: 'auto' }}>
             <TiptapEditor />
-          </EditorProvider>
-        </div>
+          </div>
+        </EditorProvider>
       </div>
     </div>
   );

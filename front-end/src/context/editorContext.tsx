@@ -5,6 +5,8 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Color from '@tiptap/extension-color';
 import TextStyle from '@tiptap/extension-text-style';
 import { Highlight } from '../Helpers/highlight';
+import '../App.css'
+import PaginationExtension, { PageNode, HeaderFooterNode, BodyNode } from "tiptap-extension-pagination";
 
 type EditorContextType = {
   editor: Editor | null;
@@ -16,12 +18,25 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const editor = useEditor({
     extensions: [
       StarterKit,
-      TextStyle,   
+      TextStyle,
       Color,
-      Highlight.configure({multicolor: true}),
+      Highlight.configure({ multicolor: true }),
       Placeholder.configure({
         placeholder: 'Start taking notes...',
+        showOnlyWhenEditable: true,
+        includeChildren: true,
       }),
+       PaginationExtension.configure({
+       defaultPaperSize: 'A4',
+       pageAmendmentOptions:{
+        enableHeader: false,
+        enableFooter:false,
+       },
+       
+       }),
+      PageNode,
+      HeaderFooterNode,
+      BodyNode,
     ],
     content: '',
     autofocus: true,
