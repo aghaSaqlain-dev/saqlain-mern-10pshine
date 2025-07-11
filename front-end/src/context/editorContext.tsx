@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useEditor, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -10,11 +10,16 @@ import PaginationExtension, { PageNode, HeaderFooterNode, BodyNode } from "tipta
 
 type EditorContextType = {
   editor: Editor | null;
+  wordCount: number;
+  pageCount: number;
 };
-
-const EditorContext = createContext<EditorContextType>({ editor: null });
+const EditorContext = createContext<EditorContextType>({ editor: null, wordCount: 0, pageCount: 1 });
 
 export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [wordCount, setWordCount] = useState(0);
+  const [pageCount, setPageCount] = useState(1);
+  
+  
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -34,6 +39,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
        },
        
        }),
+       
       PageNode,
       HeaderFooterNode,
       BodyNode,
@@ -41,10 +47,20 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     content: '',
     autofocus: true,
     editable: true,
+     onUpdate({ editor }) {
+    // Word count
+    const text = editor.getText();
+    const words = text.trim().split(/\s+/).filter(Boolean);
+    setWordCount(words.length);
+
+    // Page count (for tiptap-extension-pagination)
+    const pages = editor.view.dom.querySelectorAll('.page').length;
+    setPageCount(pages || 1);
+  },
   });
 
   return (
-    <EditorContext.Provider value={{ editor }}>
+    <EditorContext.Provider value={{ editor, wordCount, pageCount}}>
       {children}
     </EditorContext.Provider>
   );

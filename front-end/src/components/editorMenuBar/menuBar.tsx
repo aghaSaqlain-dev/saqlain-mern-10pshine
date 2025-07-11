@@ -3,7 +3,12 @@ import ColorPicker from 'react-pick-color';
 import { useEditorContext } from '../../context/editorContext';
 import './menuBarStyle.css';
 
-const MenuBar: React.FC = () => {
+interface MenuBarProps {
+  pageCount: number;
+  wordCount: number;
+}
+
+const MenuBar: React.FC<MenuBarProps> = ({ pageCount, wordCount }) => {
   const { editor } = useEditorContext();
   const [showPicker, setShowPicker] = React.useState(false);
   const [highlightColor, setHighlightColor] = React.useState('#FFFF00');
@@ -123,6 +128,11 @@ const MenuBar: React.FC = () => {
         <button title="Remove Highlight"
           onClick={() => editor.chain().focus().unsetHighlight().run()}
         >🚫🖍️</button>
+        <span className="toolbar-separator" />
+        <div style={{ marginRight: 'auto', display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <span>Pages: <b>{pageCount}</b></span>
+          <span>Words: <b>{wordCount}</b></span>
+        </div>
       </div>
     </div>
   );
