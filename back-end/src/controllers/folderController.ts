@@ -1,13 +1,14 @@
 import express, { Request, Response } from "express";
-import { PrismaClient } from '../../generated/prisma';
-
-
+import { PrismaClient } from '../../generated/prisma'; 
 const prisma = new PrismaClient();
 
 
 // Create a new folder
 const createFolder = async (req: Request, res: Response) => {
+    // console.log("here")
+    // console.log(req)
     const { name, user_id, domain } = req.body; 
+    //console.log(name, user_id, domain)
     if (!name || !user_id || !domain) {
         return res.status(400).json({ message: "Name, user_id, and domain are required" });
     }
@@ -15,7 +16,7 @@ const createFolder = async (req: Request, res: Response) => {
         const newFolder = await prisma.folder.create({
             data: {
                 name,
-                user_id: Number(user_id), // Ensure user_id is a number
+                user_id: Number(user_id), 
                 domain
             }
         });
@@ -29,17 +30,20 @@ const createFolder = async (req: Request, res: Response) => {
 // Get all folders or a specific folder by ID
 const getFolders = async (req: Request, res: Response) => {
     try {
-         const { id } = req.params;
-    if (id) {
-        const folder = await prisma.folder.findFirst({ where: { id: Number(id) } });
+        const { id, uid} = req.body;
+    if (id && uid) {
+        const folder = await prisma.folder.findFirst({ where: { id: Number(id), user_id: Number(uid) } });
         if (!folder) {
             return res.status(404).json({ message: "Folder not found" });
         }
         return res.json(folder);
-    }else{
-        const allFolders = await prisma.folder.findMany();
+    }else if(uid){
+        const allFolders = await prisma.folder.findMany({where: { user_id: Number(uid) }});
         // console.log(allFolders)
         res.json(allFolders);
+    }
+    else{
+        throw new Error("Invalid request parameters");
     }
     } catch (error) {
         console.error("Error fetching folders:", error);
@@ -51,16 +55,17 @@ const getFolders = async (req: Request, res: Response) => {
 
 // Update a folder by ID
 const updateFolder = async (req: Request, res: Response) => {
+    console.log("here")
     const { id } = req.params;
-    const { name, domain, user_id } = req.body;
+    const { domain} = req.body;
+    console.log(req)
+    console.log(id, domain)
 
     try {
         const updatedFolder = await prisma.folder.update({
             where: { id: Number(id) },
             data: {
-                ...(name && { name }),
                 ...(domain && { domain }),
-                ...(user_id && { user_id: Number(user_id) }),
             },
         });
         res.json(updatedFolder);
@@ -91,3 +96,5 @@ const deleteFolder = async (req: Request, res: Response) => {
     }
 };
 export { createFolder, getFolders, updateFolder, deleteFolder };
+
+ 

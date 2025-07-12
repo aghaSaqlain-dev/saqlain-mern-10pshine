@@ -33,11 +33,11 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }),
        PaginationExtension.configure({
        defaultPaperSize: 'A4',
-       pageAmendmentOptions:{
-        enableHeader: false,
-        enableFooter:false,
-       },
-       
+        pageAmendmentOptions:{
+          enableHeader:false,
+          enableFooter:false,
+        }
+      
        }),
        
       PageNode,
