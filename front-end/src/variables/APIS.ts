@@ -4,3 +4,4 @@ export const API_REGISTER = `${API_BASE_URL}/auth/send-otp`;
 export const API_VERIFY_OTP = `${API_BASE_URL}/auth/verify-otp`;
 export const API_GET_FOLDERS = `${API_BASE_URL}/folders`;
 export const API_CREATE_FOLDER = `${API_BASE_URL}/createFolder`;
+export const API_GET_NOTES = `${API_BASE_URL}/notes`;

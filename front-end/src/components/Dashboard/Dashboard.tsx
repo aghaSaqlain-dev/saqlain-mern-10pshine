@@ -5,6 +5,7 @@ import TiptapEditor from '../../services/TiptapEditor';
 import MenuBar from '../editorMenuBar/menuBar';
 import { FolderProvider } from '../../context/folderContext';
 import './Dashboard.css';
+import { NoteProvider } from '../../context/noteContext';
 
 const DashboardContent = () => {
   const { wordCount, pageCount } = useEditorContext();
@@ -24,7 +25,9 @@ const Dashboard = () => {
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#f0f0f0' }}>
       <FolderProvider>
+        <NoteProvider>
   <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+  </NoteProvider>
 </FolderProvider>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <EditorProvider>

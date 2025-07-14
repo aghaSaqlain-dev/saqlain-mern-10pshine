@@ -5,7 +5,9 @@ const prisma = new PrismaClient();
 // Get all notes
 export const getAllNotes = async (req: Request, res: Response) => {
     try {
-        const { user_id, folder_id } = req.body;
+        console.log(req.query)
+        console.log("here")
+        const { user_id, folder_id } = req.query;
         console.log(req)
         console.log(user_id)
         console.log(folder_id)

@@ -14,7 +14,7 @@ import { authenticate } from '../middlware/auth';
 
 const router = express.Router();
 
-router.get('/notes',authenticate, asyncHandler(getAllNotes)); // Get all notes
+router.get('/notes', asyncHandler(getAllNotes)); // Get all notes
 router.get('/notes/:id',authenticate,  asyncHandler(getNoteById)); // Get a specific note by ID
 router.post('/notes',authenticate,  asyncHandler(createNote)); // Create a new note
 router.post('/notes/:id/pin',authenticate,  asyncHandler(pinNote)); // pin/unpin a note

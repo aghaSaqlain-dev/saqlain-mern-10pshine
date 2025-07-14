@@ -8,8 +8,8 @@ const router = express.Router();
 // Define routes for folder operations
 router.post('/folders' ,asyncHandler(getFolders));
 router.get('/folders/:id', authenticate, asyncHandler(getFolders));
-router.post('/createFolder', asyncHandler(createFolder));
-router.patch('/folders/:id', authenticate, asyncHandler(updateFolder));
+router.post('/createFolder',authenticate, asyncHandler(createFolder));
+router.patch('/folders/:id',  asyncHandler(updateFolder));
 router.delete('/folders/:id', authenticate, asyncHandler(deleteFolder));
 
 
