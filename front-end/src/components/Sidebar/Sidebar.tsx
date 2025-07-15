@@ -4,13 +4,15 @@ import { useFolderContext } from '../../context/folderContext';
 import { useNoteContext } from '../../context/noteContext';
 import folderLogo from '../../variables/Varibles'; 
 import { LogoutButton } from '../Dashboard/LogoutButton';
+import { Note } from '../../Models/note';
 
 type SidebarProps = {
   collapsed: boolean;
   setCollapsed: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedNote: React.Dispatch<React.SetStateAction<Note | null>>;
 };
 
-const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed}) => {
+const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNote}) => {
   const { notes, getUserNotes } = useNoteContext();
   const { folders, getUserFolders, createFolder, setFolders, updateFolder } = useFolderContext();
   
@@ -21,6 +23,9 @@ const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed}) => {
   const [renameValue, setRenameValue] = useState('');
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
+  const [expandedFolders, setExpandedFolders] = useState<number[]>([]);
+  const [currentNote, setCurrentNote] = useState<Note | null>(null);
+
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -103,6 +108,7 @@ const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fold
     </button>
     {!collapsed && (
       <>
+      {/*ADD FOLDER */}
         <div className="sidebar-header">
           <h2>Folders</h2>
           <button
@@ -112,102 +118,121 @@ const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fold
             disabled={creating}
           >+</button>
         </div>
+        {/*ADD FOLDER END */}
+        {/* OPENED SIDEBAR */}
         <ul className="sidebar-folder-list">
-          {folders && folders.map(folder => (
-            <li
-              key={folder.id}
-              className={`sidebar-folder-item${selectedFolderId === folder.id ? ' selected' : ''}`}
-              onClick={() => {
-                setSelectedFolderId(folder.id);
-                getUserNotes(folder.id); 
-              }}
-              onMouseEnter={() => setHoveredId(folder.id)}
-              onMouseLeave={() => setHoveredId(null)}
-              style={{ position: 'relative', cursor: 'pointer' }}
-            >
-              {folderLogo()}
-              {renamingId === folder.id ? (
-                <input
-                  type="text"
-                  value={renameValue}
-                  autoFocus
-                  onChange={e => setRenameValue(e.target.value)}
-                  onKeyDown={e => handleRenameInputKeyDown(e, folder.id)}
-                  onBlur={() => { setRenamingId(null); setRenameValue(''); }}
-                  style={{
-                    flex: 1,
-                    border: 'none',
-                    outline: 'none',
-                    background: 'transparent',
-                    fontSize: '1em',
-                    padding: '4px 0'
-                  }}
-                />
-              ) : (
-                <>
-                  <span className="sidebar-folder-name">{folder.domain}</span>
-                  {hoveredId === folder.id && (
-                    <span style={{ position: 'absolute', right: 8, display: 'flex', gap: '8px' }}>
-                      <span
-                        title="Create new note"
-                        style={{ cursor: 'pointer', fontSize: '1.1em' }}
-                        onClick={e => {
-                          e.stopPropagation();
-                          // TODO: handle create note for folder.id
-                        }}
-                      >📝</span>
-                      <span
-                        title="Rename folder"
-                        style={{ cursor: 'pointer', fontSize: '1.1em' }}
-                        onClick={e => {
-                          e.stopPropagation();
-                          setRenamingId(folder.id);
-                          setRenameValue(folder.domain);
-                        }}
-                      >✏️</span>
-                    </span>
-                  )}
-                  {/* VS Code-like dropdown for notes */}
-                  {selectedFolderId === folder.id && (
-                    <ul className="sidebar-note-list" style={{ marginLeft: 24 }}>
-                      {notes
-                        .filter(note => note.folder_id === folder.id)
-                        .map(note => (
-                          <li key={note.id} className="sidebar-note-item">
-                            🗒️ {note.title}
-                          </li>
-                        ))}
-                    </ul>
-                  )}
-                </>
-              )}
-            </li>
-          ))}
-          {creating && (
-            <li className="sidebar-folder-item" style={{ background: isCreatingLoading ? '#fff' : '#f5f6fa' }}>
-              {folderLogo()}
-              <input
-                ref={inputRef}
-                type="text"
-                value={newFolderName}
-                onChange={e => setNewFolderName(e.target.value)}
-                onKeyDown={handleInputKeyDown}
-                placeholder="Enter folder name"
-                disabled={isCreatingLoading}
-                style={{
-                  flex: 1,
-                  border: 'none',
-                  outline: 'none',
-                  background: 'transparent',
-                  fontSize: '1em',
-                  padding: '4px 0',
-                  color: isCreatingLoading ? '#aaa' : undefined,
-                  cursor: isCreatingLoading ? 'not-allowed' : 'text'
+ {folders && folders.map(folder => (
+  <div key={folder.id} style={{ width: '100%' }}>
+    {/* Folder row: logo, name, actions */}
+    <div
+      className={`sidebar-folder-item${expandedFolders.includes(folder.id) ? ' selected' : ''}`}
+      onClick={() => {
+        setExpandedFolders(prev =>
+          prev.includes(folder.id)
+            ? prev.filter(id => id !== folder.id) // contract
+            : [...prev, folder.id] // expand
+        );
+        if (!expandedFolders.includes(folder.id)) {
+          getUserNotes(folder.id); // fetch notes only when expanding
+        }
+      }}
+      onMouseEnter={() => setHoveredId(folder.id)}
+      onMouseLeave={() => setHoveredId(null)}
+      style={{ position: 'relative', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+    >
+      {folderLogo()}
+      {renamingId === folder.id ? (
+        <input
+          type="text"
+          value={renameValue}
+          autoFocus
+          onChange={e => setRenameValue(e.target.value)}
+          onKeyDown={e => handleRenameInputKeyDown(e, folder.id)}
+          onBlur={() => { setRenamingId(null); setRenameValue(''); }}
+          style={{
+            flex: 1,
+            border: 'none',
+            outline: 'none',
+            background: 'transparent',
+            fontSize: '1em',
+            padding: '4px 0'
+          }}
+        />
+      ) : (
+        <>
+          <span className="sidebar-folder-name">{folder.domain}</span>
+          {hoveredId === folder.id && (
+            <span className="sidebar-folder-actions" style={{ display: 'flex', gap: '8px', marginLeft: '8px' }}>
+              <span
+                title="Create new note"
+                style={{ cursor: 'pointer', fontSize: '1.1em' }}
+                onClick={e => {
+                  e.stopPropagation();
+                  // TODO: handle create note for folder.id
                 }}
-              />
-            </li>
+              >📝</span>
+              <span
+                title="Rename folder"
+                style={{ cursor: 'pointer', fontSize: '1.1em' }}
+                onClick={e => {
+                  e.stopPropagation();
+                  setRenamingId(folder.id);
+                  setRenameValue(folder.domain);
+                }}
+              >✏️</span>
+            </span>
           )}
-        </ul>
+        </>
+      )}
+    </div>
+    {/* Notes dropdown */}
+    {expandedFolders.includes(folder.id) && (
+      <div className="sidebar-note-list" >
+        {notes
+  .filter(note => note.folder_id === folder.id)
+  .map(note => (
+    <div
+      key={note.id}
+      className="sidebar-note-item"
+      onClick={() => {setSelectedNote(note); setCurrentNote(note)}}
+      style={
+      currentNote != null && note.id == currentNote?.id
+        ? { background: '#f0f0f0' } 
+        : undefined
+      }
+    >
+      🗒️ {note.title}
+    </div>
+          ))}
+      </div>
+    )}
+  </div>
+))}
+  {creating && (
+    <li className="sidebar-folder-item" style={{ background: isCreatingLoading ? '#fff' : '#f5f6fa' }}>
+      {folderLogo()}
+      <input
+        ref={inputRef}
+        type="text"
+        value={newFolderName}
+        onChange={e => setNewFolderName(e.target.value)}
+        onKeyDown={handleInputKeyDown}
+        placeholder="Enter folder name"
+        disabled={isCreatingLoading}
+        style={{
+          flex: 1,
+          border: 'none',
+          outline: 'none',
+          background: 'transparent',
+          fontSize: '1em',
+          padding: '4px 0',
+          color: isCreatingLoading ? '#aaa' : undefined,
+          cursor: isCreatingLoading ? 'not-allowed' : 'text'
+        }}
+      />
+    </li>
+  )}
+</ul>
         {/* logout button */}
         <LogoutButton />
       </>

@@ -107,3 +107,35 @@
 .sidebar.collapsed .sidebar-folder-list {
   display: none;
 }
+.sidebar-note-list {
+
+  width: 100%;
+}
+.sidebar-note-item {
+  background: rgba(255,255,255,0.8); /* Match sidebar background */
+  margin: 2px 0;
+  border-radius: 6px;
+  color: #1a2332;
+  font-size: 0.97em;
+  transition: background 0.15s;
+  width: 100%; /* Match folder row width */
+  box-sizing: border-box;
+  padding-left: 10%;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-note-item:hover {
+  background: #e3eafc;
+}
+
+.sidebar-folder-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sidebar-folder-item.selected {
+  background: #d1d9ee; /* Slightly darker when expanded */
+}
