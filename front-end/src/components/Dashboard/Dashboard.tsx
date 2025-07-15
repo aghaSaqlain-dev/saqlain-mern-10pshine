@@ -5,19 +5,23 @@ import TiptapEditor from '../../services/TiptapEditor';
 import MenuBar from '../editorMenuBar/menuBar';
 import { FolderProvider } from '../../context/folderContext';
 import './Dashboard.css';
-import { NoteProvider } from '../../context/noteContext';
+import { NoteProvider, useNoteContext } from '../../context/noteContext';
 import { Note } from '../../Models/note';
 
 interface DashboardContentProps {
   selectedNote: Note | null;
+  isDirty: boolean;
+  setIsDirty: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const DashboardContent = ({ selectedNote }: DashboardContentProps) => {
+const DashboardContent = ({ selectedNote, isDirty, setIsDirty }: DashboardContentProps) => {
   const { wordCount, pageCount } = useEditorContext();
   const isEditable = !!selectedNote;
 
-  return (
+  const {updateNote} = useNoteContext();
+   return (
     <>
+      <MenuBar pageCount={wordCount} wordCount={pageCount} disabled={!isEditable} />
       <div style={{
         padding: '12px 18px 0 18px',
         fontWeight: 500,
@@ -26,14 +30,27 @@ const DashboardContent = ({ selectedNote }: DashboardContentProps) => {
         minHeight: '32px'
       }}>
         {selectedNote
-          ? <>Working on: <span style={{ color: '#4b5c6b' }}>{selectedNote.title}</span>
-          </>
+          ? <>
+              Working on: <span style={{ color: '#4b5c6b' }}>{selectedNote.title}</span>
+              {isDirty && <span style={{ color: '#e67e22', marginLeft: 12 }}>(Unsaved changes)</span>}
+            </>
           : <>No note selected</>
         }
       </div>
-      <MenuBar pageCount={pageCount} wordCount={wordCount} disabled={!isEditable} />
       <div style={{ flex: 1, overflow: 'auto' }}>
-        <TiptapEditor note={selectedNote} editable={isEditable} />
+        <TiptapEditor
+          note={selectedNote}
+          editable={isEditable}
+          setIsDirty={setIsDirty}
+          onSave={async (content: JSON) => {
+            // Save logic here
+            console.log(content)
+            if (selectedNote) {
+              await updateNote(selectedNote.id, { content });
+              setIsDirty(false);
+            }
+          }}
+        />
       </div>
     </>
   );
@@ -42,19 +59,25 @@ const DashboardContent = ({ selectedNote }: DashboardContentProps) => {
 const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(true);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
 
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#f0f0f0' }}>
       <FolderProvider>
         <NoteProvider>
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} setSelectedNote={setSelectedNote}/>
+         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+       <EditorProvider>
+    <DashboardContent
+      selectedNote={selectedNote}
+      isDirty={isDirty}
+      setIsDirty={setIsDirty}
+    />
+  </EditorProvider>
+      </div>
         </NoteProvider>
       </FolderProvider>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <EditorProvider>
-          <DashboardContent selectedNote={selectedNote}/>
-        </EditorProvider>
-      </div>
+     
     </div>
   );
 };

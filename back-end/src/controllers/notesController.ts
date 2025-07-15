@@ -115,8 +115,10 @@ export const restoreNote = async (req: Request, res: Response) => {
 // Update a specific note by ID
 export const updateNote = async (req: Request, res: Response) => {
     try {
+        console.log(req)
         const { id } = req.params;
         const { title, content, folder_id, is_pinned, is_trashed, is_shared } = req.body;
+        console.log(title, content, folder_id, is_pinned, is_trashed, is_shared)
         const note = await prisma.note.update({
             where: { id: Number(id) },
             data: {

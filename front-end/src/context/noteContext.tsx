@@ -43,8 +43,18 @@ const getUserNotes = async (folderId: number) => {
   };
 
   const updateNote = async (noteId: number, updatedNote: Partial<Note>) => {
-    // Implement note update logic here
-    // Example: await axios.put(`/api/notes/update/${noteId}`, updatedNote);
+    try {
+      const res = await axios.patch(`${API_GET_NOTES}/${noteId}`, updatedNote);
+      setNotes(prevNotes =>
+      prevNotes.map(note =>
+        note.id === noteId ? { ...note, ...updatedNote } : note
+      )
+      );
+      return res.data;
+    } catch (error) {
+      console.error("Failed to update note", error);
+      return null;
+    }
   };
 
   const deleteNote = async (noteId: number) => {
