@@ -13,7 +13,7 @@ type SidebarProps = {
 };
 
 const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNote}) => {
-  const { notes, getUserNotes } = useNoteContext();
+  const { notes, getUserNotes, createNote } = useNoteContext();
   const { folders, getUserFolders, createFolder, setFolders, updateFolder } = useFolderContext();
   
   const [creating, setCreating] = useState(false);
@@ -22,9 +22,11 @@ const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNo
   const [renamingId, setRenamingId] = useState<number | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [hoveredId, setHoveredId] = useState<number | null>(null);
-  const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<number[]>([]);
   const [currentNote, setCurrentNote] = useState<Note | null>(null);
+  const [creatingNoteFolderId, setCreatingNoteFolderId] = useState<number | null>(null);
+  const [newNoteTitle, setNewNoteTitle] = useState('');
+  const [isCreatingNoteLoading, setIsCreatingNoteLoading] = useState(false);
 
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,6 +40,22 @@ const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNo
       inputRef.current.focus();
     }
   }, [creating]);
+
+  const handleCreateNote = async (folderId: number) => {
+  if (!newNoteTitle.trim()) return;
+  setIsCreatingNoteLoading(true);
+  try {
+    // Replace with your actual createNote API
+    await createNote( newNoteTitle, folderId);
+    await getUserNotes(folderId);
+    setCreatingNoteFolderId(null);
+    setNewNoteTitle('');
+  } catch (error) {
+    // Optionally handle error
+  } finally {
+    setIsCreatingNoteLoading(false);
+  }
+};
 
   const handleRenameFolder = async (folderId: number) => {
   // TODO: Call your API to rename folder here
@@ -164,13 +182,19 @@ const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fold
           {hoveredId === folder.id && (
             <span className="sidebar-folder-actions" style={{ display: 'flex', gap: '8px', marginLeft: '8px' }}>
               <span
-                title="Create new note"
-                style={{ cursor: 'pointer', fontSize: '1.1em' }}
-                onClick={e => {
-                  e.stopPropagation();
-                  // TODO: handle create note for folder.id
-                }}
-              >📝</span>
+              title="Create new note"
+              style={{ cursor: 'pointer', fontSize: '1.1em' }}
+             onClick={e => {
+              e.stopPropagation();
+              setCreatingNoteFolderId(folder.id);
+              setNewNoteTitle('');
+              setExpandedFolders(prev =>
+                prev.includes(folder.id)
+                  ? prev
+                  : [...prev, folder.id]
+              );
+            }}
+            >📝</span>
               <span
                 title="Rename folder"
                 style={{ cursor: 'pointer', fontSize: '1.1em' }}
@@ -188,6 +212,29 @@ const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fold
     {/* Notes dropdown */}
     {expandedFolders.includes(folder.id) && (
       <div className="sidebar-note-list" >
+        {creatingNoteFolderId === folder.id && (
+  <input
+    type="text"
+    value={newNoteTitle}
+    autoFocus
+    onChange={e => setNewNoteTitle(e.target.value)}
+    onKeyDown={e => {
+      if (e.key === 'Enter') handleCreateNote(folder.id);
+      if (e.key === 'Escape') setCreatingNoteFolderId(null);
+    }}
+    placeholder="Enter note title"
+    disabled={isCreatingNoteLoading}
+    style={{
+      width: '90%',
+      margin: '4px 0',
+      borderRadius: '6px',
+      border: '1px solid #ccc',
+      padding: '6px 10px',
+      fontSize: '1em',
+      background: '#f5f6fa'
+    }}
+  />
+)}
         {notes
   .filter(note => note.folder_id === folder.id)
   .map(note => (

@@ -8,5 +8,23 @@ const folderLogo = () => {
                 </span>
     );
 }
+export function newlyCreatedNoteContent(): Record<string, any> {
+  const content = {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "text": "Hello, this is the coolest note taking app!",
+            "type": "text"
+          }
+        ]
+      }
+    ]
+  };
+  return content;
+}
+
 
 export default folderLogo;

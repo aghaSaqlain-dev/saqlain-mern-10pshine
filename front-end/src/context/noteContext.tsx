@@ -3,6 +3,7 @@ import axios from 'axios';
 import { noteContextType } from "../Models/note";
 import { Note } from "../Models/note";
 import { API_GET_NOTES } from "../variables/APIS";
+import { newlyCreatedNoteContent } from "../variables/Varibles";
 
 const noteContext = createContext<noteContextType>({} as any);
 
@@ -37,9 +38,28 @@ const getUserNotes = async (folderId: number) => {
 
 
 
-  const createNote = async (note: Note) => {
-    // Implement note creation logic here
-    // Example: await axios.post('/api/notes/create', note);
+  const createNote = async (noteTitle: string, folder_id: number) => {
+    try {
+      const userStr = localStorage.getItem("user");
+      const user = userStr ? JSON.parse(userStr) : null;
+      const userId = user?.userId;
+      if (!userId) {
+      console.error("User ID not found in localStorage");
+      return null;
+      }
+      const noteData = {
+        title: noteTitle,
+        folder_id: folder_id,
+        user_id: userId,
+        content: newlyCreatedNoteContent()
+      };
+      const res = await axios.post(`${API_GET_NOTES}`, noteData);
+      setNotes(prevNotes => [...prevNotes, res.data]);
+      return res.data;
+    } catch (error) {
+      console.error("Failed to create note", error);
+      return null;
+    }
   };
 
   const updateNote = async (noteId: number, updatedNote: Partial<Note>) => {
