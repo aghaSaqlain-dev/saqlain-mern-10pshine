@@ -3,7 +3,7 @@ import './Sidebar.css';
 import { useFolderContext } from '../../context/folderContext';
 import { useNoteContext } from '../../context/noteContext';
 import folderLogo from '../../variables/Varibles'; 
-import { LogoutButton } from '../Dashboard/LogoutButton';
+import { LogoutButton } from './LogoutButton';
 import { Note } from '../../Models/note';
 
 type SidebarProps = {
@@ -13,8 +13,8 @@ type SidebarProps = {
 };
 
 const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNote}) => {
-  const { notes, getUserNotes, createNote } = useNoteContext();
-  const { folders, getUserFolders, createFolder, setFolders, updateFolder } = useFolderContext();
+  const { notes, getUserNotes, createNote, deleteNote, forceDeleteNote } = useNoteContext();
+  const { folders, getUserFolders, createFolder, setFolders, updateFolder, deleteFolder } = useFolderContext();
   
   const [creating, setCreating] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -27,7 +27,8 @@ const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNo
   const [creatingNoteFolderId, setCreatingNoteFolderId] = useState<number | null>(null);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [isCreatingNoteLoading, setIsCreatingNoteLoading] = useState(false);
-
+  const [deleteTarget, setDeleteTarget] = useState<{type: 'folder' | 'note', id: number} | null>(null);
+  const [deleteTimer, setDeleteTimer] = useState(0);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -40,6 +41,43 @@ const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNo
       inputRef.current.focus();
     }
   }, [creating]);
+  useEffect(() => {
+  if (deleteTarget?.type === 'folder') {
+    setDeleteTimer(5);
+    const interval = setInterval(() => {
+      setDeleteTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  } else {
+    setDeleteTimer(0);
+  }
+}, [deleteTarget]);
+
+
+  const handleDelete = async (action: 'forceDelete' | 'moveToTrash') => {
+  if (!deleteTarget) return;
+  if (deleteTarget.type === 'folder') {
+      await deleteFolder(deleteTarget.id); 
+      getUserFolders();
+  } else if (deleteTarget.type === 'note') {
+      if(action === 'moveToTrash'){
+        await deleteNote(deleteTarget.id);
+      }else if(action === 'forceDelete'){
+        await forceDeleteNote(deleteTarget.id);
+      }
+    const deletedNote = notes.find(note => note.id === deleteTarget.id);
+    if (deletedNote) {
+      getUserNotes(deletedNote.folder_id);
+    }
+  }
+  setDeleteTarget(null);
+};
 
   const handleCreateNote = async (folderId: number) => {
   if (!newNoteTitle.trim()) return;
@@ -56,7 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNo
     setIsCreatingNoteLoading(false);
   }
 };
-
+ 
   const handleRenameFolder = async (folderId: number) => {
   // TODO: Call your API to rename folder here
   await updateFolder(folderId, renameValue);
@@ -182,6 +220,14 @@ const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fold
           {hoveredId === folder.id && (
             <span className="sidebar-folder-actions" style={{ display: 'flex', gap: '8px', marginLeft: '8px' }}>
               <span
+                title="Delete folder"
+                style={{ cursor: 'pointer', fontSize: '1.1em', color: '#e74c3c', marginLeft: 8 }}
+                onClick={e => {
+                  e.stopPropagation();
+                  setDeleteTarget({ type: 'folder', id: folder.id });
+                }}
+              >🗑️</span>
+              <span
               title="Create new note"
               style={{ cursor: 'pointer', fontSize: '1.1em' }}
              onClick={e => {
@@ -204,6 +250,7 @@ const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fold
                   setRenameValue(folder.domain);
                 }}
               >✏️</span>
+              
             </span>
           )}
         </>
@@ -239,17 +286,21 @@ const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fold
   .filter(note => note.folder_id === folder.id)
   .map(note => (
     <div
-      key={note.id}
-      className="sidebar-note-item"
-      onClick={() => {setSelectedNote(note); setCurrentNote(note)}}
-      style={
-      currentNote != null && note.id == currentNote?.id
-        ? { background: '#f0f0f0' } 
-        : undefined
-      }
-    >
-      🗒️ {note.title}
-    </div>
+  key={note.id}
+  className="sidebar-note-item"
+  onClick={() => { setSelectedNote(note); setCurrentNote(note); }}
+  style={currentNote != null && note.id == currentNote?.id ? { background: '#f0f0f0' } : undefined}
+>
+  🗒️ {note.title}
+  <span
+    title="Delete note"
+    style={{ float: 'right', cursor: 'pointer', color: '#e74c3c', marginLeft: 8 }}
+    onClick={e => {
+      e.stopPropagation();
+      setDeleteTarget({ type: 'note', id: note.id });
+    }}
+  >🗑️</span>
+</div>
           ))}
       </div>
     )}
@@ -282,9 +333,46 @@ const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fold
 </ul>
         {/* logout button */}
         <LogoutButton />
+        {deleteTarget && (
+  <div className="modal-backdrop">
+    <div className="modal">
+      <p>
+        Are you sure you want to delete this {deleteTarget.type}? All your {deleteTarget.type === 'folder' ? 'notes in this folder' : 'content in this note'} will be deleted!
+      </p>
+      {deleteTarget.type === 'folder' && deleteTimer > 0 && (
+        <p style={{ color: '#e74c3c', fontWeight: 'bold' }}>
+          Please wait {deleteTimer} second{deleteTimer !== 1 ? 's' : ''} before confirming.
+        </p>
+      )}
+      <button
+        onClick={() => handleDelete('forceDelete')}
+        style={{ color: 'black', background: '#e74c3c', marginRight: 8 }}
+        disabled={deleteTarget.type === 'folder' && deleteTimer > 0}
+      >
+        Delete permanently
+      </button>
+      {deleteTarget.type === 'note' && (
+        <button
+          onClick={() => handleDelete('moveToTrash')}
+          style={{ color: 'white', background: '#636e72', marginRight: 8 }}
+        >
+          Move to Trash
+        </button>
+      )}
+      <button
+        onClick={() => setDeleteTarget(null)}
+        disabled={deleteTarget.type === 'folder' && deleteTimer > 0}
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
       </>
     )}
+    
   </aside>
+  
 );
 };
 

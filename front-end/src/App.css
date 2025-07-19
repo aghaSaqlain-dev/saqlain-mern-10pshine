@@ -3,6 +3,7 @@
   box-shadow: none !important;
   background: transparent !important;
   outline: none !important;
+  
 }
 .tiptap-page {
    border: none !important;
@@ -22,4 +23,15 @@
 }
 .body{
   border: none !important;
+}
+[data-page-body="true"] {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+  width: calc(100% - 50px) !important; /* Full width minus margins */
+  max-width: 210mm !important; /* A4 width as max */
+  min-width: 300px !important;
+  height: 246.2mm !important;
+  min-height: 400px !important;
+  margin: 25px !important;
+  box-sizing: border-box !important;
 }

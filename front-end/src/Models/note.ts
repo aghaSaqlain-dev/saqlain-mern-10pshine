@@ -16,7 +16,8 @@ export type noteContextType = {
     getUserNotes: (folder_id: number) => Promise<void>;
     createNote: (noteTitle: string, folder_id: number) => Promise<void>;
     updateNote: (noteId: number, updatedNote: Partial<Note>) => Promise<void>;
-    deleteNote: (noteId: number) => Promise<void>;
+    deleteNote: (noteId: number) => Promise<boolean>;
+    forceDeleteNote: (noteId: number) => Promise<boolean>;
     notes: Note[];
     setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
 }

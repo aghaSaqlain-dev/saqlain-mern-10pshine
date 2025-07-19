@@ -83,6 +83,11 @@ const deleteFolder = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     try {
+        //delete the notes associated with the folder first
+        await prisma.note.deleteMany({
+            where: { folder_id: Number(id) },
+        });
+        // Delete the folder
         await prisma.folder.delete({
             where: { id: Number(id) },
         });

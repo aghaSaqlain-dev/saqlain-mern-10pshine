@@ -17,7 +17,8 @@ export const getAllNotes = async (req: Request, res: Response) => {
         const notes = await prisma.note.findMany({where: {
             //user should access only his own notes
             user_id: Number(user_id),
-            folder_id: Number(folder_id)
+            folder_id: Number(folder_id),
+            is_trashed: false
         },});
         if(!notes || notes.length === 0) {
             return res.status(404).json({ message: "No notes found for this user and folder" });
@@ -43,7 +44,8 @@ export const getNoteById = async (req: Request, res: Response) => {
             //user should access only his own notes
             user_id: Number(user_id),
             folder_id: Number(folder_id),
-            id : Number(note_id)
+            id : Number(note_id),
+            is_trashed: false
         },});
         if(!note || note.length === 0) {
             return res.status(404).json({ message: "No note found for this id" });
@@ -143,7 +145,7 @@ export const deleteNote = async (req: Request, res: Response) => {
         const { id } = req.params;
         const note = await prisma.note.update({
             where: { id: Number(id) },
-            data: { is_trashed: true },
+            data: { is_trashed: true, trashed_at: new Date() },
         });
         res.json({ message: "Note moved to trash", note });
     } catch (error) {

@@ -5,3 +5,4 @@ export const API_VERIFY_OTP = `${API_BASE_URL}/auth/verify-otp`;
 export const API_GET_FOLDERS = `${API_BASE_URL}/folders`;
 export const API_CREATE_FOLDER = `${API_BASE_URL}/createFolder`;
 export const API_GET_NOTES = `${API_BASE_URL}/notes`;
+export const API_NOTE_DELETE_PERMANENTLY = (note_id: number)=> `${API_BASE_URL}/notes/${note_id}/force`;

@@ -52,6 +52,7 @@ model Note {
   noteShares NoteShare[]
   comments   Comment[]
   mediaAttachments MediaAttachment[]
+  trashed_at DateTime?
 }
 
 model Tag {

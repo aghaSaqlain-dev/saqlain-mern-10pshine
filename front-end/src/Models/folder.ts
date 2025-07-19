@@ -4,8 +4,7 @@ export type folderContextType = {
   createFolder: (folderName: string) => Promise<void>;
   setFolders: React.Dispatch<React.SetStateAction<Folder[]>>;
   updateFolder: (folderId: number, newName: string) => Promise<void>;
-
-
+  deleteFolder: (folderId: number) => Promise<void>;
 };
 export interface Folder {
   id: number;

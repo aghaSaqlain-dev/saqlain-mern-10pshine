@@ -48,13 +48,19 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({ note, editable, setIsDirty,
   }, [editor, onSave]);
 
   return (
-    <div style={{ width: '100%', height: '100%' }}>
+    <div style={{ width: '100%', height: '100%',minHeight: '300px',maxWidth: '100%', // Add this
+    overflow: 'hidden' }}>
       <EditorContent editor={editor} style={{
-        minHeight: '400px',
-        fontSize: '1.1rem',
-        outline: 'none',
-        padding: '8px',
-      }} />
+      minHeight: '400px',
+      fontSize: '1.1rem',
+      outline: 'none',
+      padding: '8px',
+      width: '100%', // Add this
+      maxWidth: '100%', // Add this
+      wordWrap: 'break-word', // Add this
+      overflowWrap: 'break-word', // Add this
+      boxSizing: 'border-box' // Add this
+    }} />
     </div>
   );
 };

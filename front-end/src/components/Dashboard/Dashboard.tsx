@@ -20,14 +20,19 @@ const DashboardContent = ({ selectedNote, isDirty, setIsDirty }: DashboardConten
 
   const {updateNote} = useNoteContext();
    return (
-    <>
-      <MenuBar pageCount={wordCount} wordCount={pageCount} disabled={!isEditable} />
-      <div style={{
+     <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      height: '100%' // Add this
+    }}>
+      <MenuBar pageCount={pageCount} wordCount={wordCount} disabled={!isEditable} />
+       <div style={{
         padding: '12px 18px 0 18px',
         fontWeight: 500,
         fontSize: '1.1em',
         color: '#2d3a4b',
-        minHeight: '32px'
+        minHeight: '32px',
+        flexShrink: 0 // Prevent this from shrinking
       }}>
         {selectedNote
           ? <>
@@ -37,7 +42,7 @@ const DashboardContent = ({ selectedNote, isDirty, setIsDirty }: DashboardConten
           : <>No note selected</>
         }
       </div>
-      <div style={{ flex: 1, overflow: 'auto' }}>
+      <div style={{ flex: 1, overflow: 'auto',padding: '0 18px 18px 18px' }}>
         <TiptapEditor
           note={selectedNote}
           editable={isEditable}
@@ -52,7 +57,7 @@ const DashboardContent = ({ selectedNote, isDirty, setIsDirty }: DashboardConten
           }}
         />
       </div>
-    </>
+    </div>
   );
 };
 
@@ -66,7 +71,7 @@ const Dashboard = () => {
       <FolderProvider>
         <NoteProvider>
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} setSelectedNote={setSelectedNote}/>
-         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100vh' }}>
        <EditorProvider>
     <DashboardContent
       selectedNote={selectedNote}
