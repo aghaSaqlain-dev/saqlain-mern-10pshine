@@ -22,41 +22,39 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      TextStyle,
-      Color,
-      Highlight.configure({ multicolor: true }),
-      Placeholder.configure({
-        placeholder: 'Start taking notes...',
-        showOnlyWhenEditable: true,
-        includeChildren: true,
-      }),
-       PaginationExtension.configure({
-       defaultPaperSize: 'A4',
-        pageAmendmentOptions:{
-          enableHeader:false,
-          enableFooter:false,
-        }
-      
-       }),
-       
-      PageNode,
-      HeaderFooterNode,
-      BodyNode,
-    ],
+    StarterKit,
+    TextStyle,
+    Color,
+    Highlight.configure({ multicolor: true }),
+    Placeholder.configure({
+      placeholder: 'Start taking notes...',
+      showOnlyWhenEditable: true,
+      includeChildren: true,
+    }),
+    PaginationExtension.configure({
+      defaultPaperSize: 'A4',
+      pageAmendmentOptions: {
+        enableHeader: false,
+        enableFooter: false,
+      }
+    }),
+    PageNode,
+    HeaderFooterNode,
+    BodyNode,
+  ],
     content: '',
     autofocus: true,
     editable: true,
      onUpdate({ editor }) {
-    // Word count
-    const text = editor.getText();
-    const words = text.trim().split(/\s+/).filter(Boolean);
-    setWordCount(words.length);
+  // Word count
+  const text = editor.getText();
+  const words = text.trim().split(/\s+/).filter(Boolean);
+  setWordCount(words.length);
 
-    // Page count (for tiptap-extension-pagination)
-    const pages = editor.view.dom.querySelectorAll('.page').length;
-    setPageCount(pages || 1);
-  },
+  // Page count - Use correct selector for pagination extension
+  const pages = editor.view.dom.querySelectorAll('[data-page-body="true"]').length;
+  setPageCount(pages || 1);
+},
   });
 
   return (

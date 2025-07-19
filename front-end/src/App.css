@@ -3,35 +3,39 @@
   box-shadow: none !important;
   background: transparent !important;
   outline: none !important;
-  
 }
-.tiptap-page {
-   border: none !important;
-  box-shadow: none !important;
-  width: 794px;
-  min-height: 1123px;
-  background: #fff;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-  border-radius: 8px;
-  padding: 48px 40px;
-  margin: 32px auto;
-  position: relative;
-  overflow: hidden;
-  page-break-after: always;
-    border-radius: 0 !important;
 
-}
-.body{
+.body {
   border: none !important;
 }
+
+/* Fix pagination container */
 [data-page-body="true"] {
-  padding-left: 15px !important;
-  padding-right: 15px !important;
-  width: calc(100% - 50px) !important; /* Full width minus margins */
-  max-width: 210mm !important; /* A4 width as max */
+  width: calc(100% - 50px) !important;
+  max-width: 210mm !important;
   min-width: 300px !important;
-  height: 246.2mm !important;
-  min-height: 400px !important;
-  margin: 25px !important;
+  height: 297mm !important; /* Fixed height for A4 page */
+  margin: 25px auto !important;
+  padding: 25mm 20mm !important; /* Use proper page margins */
   box-sizing: border-box !important;
+  overflow: hidden !important; /* Critical: Hide overflow to trigger pagination */
+  background: #fff !important;
+  border: 1px solid #ddd !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Remove ALL .tiptap-page styles - they conflict with pagination */
+/* The pagination extension handles page styling automatically */
+
+/* Prevent elements from breaking across pages */
+[data-page-body="true"] p,
+[data-page-body="true"] h1,
+[data-page-body="true"] h2,
+[data-page-body="true"] h3,
+[data-page-body="true"] li,
+[data-page-body="true"] ul,
+[data-page-body="true"] ol {
+  break-inside: avoid !important;
+  max-width: 100% !important;
+  word-break: break-word !important;
 }

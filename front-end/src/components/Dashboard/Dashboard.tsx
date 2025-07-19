@@ -42,7 +42,14 @@ const DashboardContent = ({ selectedNote, isDirty, setIsDirty }: DashboardConten
           : <>No note selected</>
         }
       </div>
-      <div style={{ flex: 1, overflow: 'auto',padding: '0 18px 18px 18px' }}>
+      <div style={{ 
+  flex: 1, 
+  overflow: 'auto', // Keep for scrolling between pages
+  maxWidth: '100%',
+  minWidth: 0,
+  boxSizing: 'border-box',
+  // Remove padding - let pagination extension handle page spacing
+}}>
         <TiptapEditor
           note={selectedNote}
           editable={isEditable}

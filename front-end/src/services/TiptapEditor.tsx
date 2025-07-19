@@ -47,22 +47,27 @@ const TiptapEditor: React.FC<TiptapEditorProps> = ({ note, editable, setIsDirty,
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [editor, onSave]);
 
-  return (
-    <div style={{ width: '100%', height: '100%',minHeight: '300px',maxWidth: '100%', // Add this
-    overflow: 'hidden' }}>
-      <EditorContent editor={editor} style={{
+ return (
+  <div style={{ 
+    width: '100%', 
+    height: 'auto',
+    minHeight: '300px',
+    maxWidth: '100%',
+    overflow: 'visible', // Keep this for pagination
+    position: 'relative'
+  }}>
+    <EditorContent editor={editor} style={{
+      width: '100%',
+      maxWidth: '100%',
       minHeight: '400px',
       fontSize: '1.1rem',
       outline: 'none',
-      padding: '8px',
-      width: '100%', // Add this
-      maxWidth: '100%', // Add this
-      wordWrap: 'break-word', // Add this
-      overflowWrap: 'break-word', // Add this
-      boxSizing: 'border-box' // Add this
+      // Remove padding - let pagination extension handle it
+      wordWrap: 'break-word',
+      overflowWrap: 'break-word',
+      boxSizing: 'border-box'
     }} />
-    </div>
-  );
-};
-
+  </div>
+);
+}
 export default TiptapEditor;
