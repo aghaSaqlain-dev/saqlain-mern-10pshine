@@ -56,7 +56,7 @@ const DashboardContent = ({ selectedNote, isDirty, setIsDirty }: DashboardConten
           setIsDirty={setIsDirty}
           onSave={async (content: JSON) => {
             // Save logic here
-            console.log(content)
+            //console.log(content)
             if (selectedNote) {
               await updateNote(selectedNote.id, { content });
               setIsDirty(false);

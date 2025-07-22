@@ -25,6 +25,7 @@ export function newlyCreatedNoteContent(): Record<string, any> {
   };
   return content;
 }
+export const summary_instructions = "Summarize the following student notes in a concise, accurate, and creative manner. Focus on the key points and main ideas, eliminating redundancy or filler content. The summary should be direct and informative, without introductory phrases or transitions like 'The notes say' or 'In summary'. Begin with the core idea and maintain clarity and flow throughout.";
 
 
 export default folderLogo;

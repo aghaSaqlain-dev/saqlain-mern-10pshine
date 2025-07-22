@@ -2,6 +2,8 @@ import React from 'react';
 import ColorPicker from 'react-pick-color';
 import { useEditorContext } from '../../context/editorContext';
 import './menuBarStyle.css';
+import { API_SUMMARIZE_NOTE } from '../../variables/APIS';
+import { summary_instructions } from '../../variables/Varibles';
 
 interface MenuBarProps {
   pageCount: number;
@@ -14,6 +16,9 @@ const MenuBar: React.FC<MenuBarProps> = ({ pageCount, wordCount, disabled }) => 
   const [showPicker, setShowPicker] = React.useState(false);
   const [highlightColor, setHighlightColor] = React.useState('#FFFF00');
   const [H, setH] = React.useState('H');
+  const [summary, setSummary] = React.useState<string>(''); 
+  const [isLoading, setIsLoading] = React.useState(false); 
+
   if (!editor) return null;
 
   return (
@@ -146,9 +151,59 @@ const MenuBar: React.FC<MenuBarProps> = ({ pageCount, wordCount, disabled }) => 
         <div style={{ marginRight: 'auto', display: 'flex', gap: '16px', alignItems: 'center' }}>
           <span>Pages: <b>{pageCount}</b></span>
           <span>Words: <b>{wordCount}</b></span>
+        <span className="toolbar-separator" />
+           <div style={{ position: 'relative' }}>
+            <button
+              title="AI Summarizer"
+              disabled={disabled || isLoading}
+              onClick={async () => {
+                if (!editor) return;
+                setIsLoading(true);
+                const content = editor.getJSON();
+                try {
+                  const response = await fetch(API_SUMMARIZE_NOTE, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ note_content: content, summary: summary_instructions }),
+                  });
+                  const data = await response.json();
+                  if (data.summary) {
+                    setSummary(data.summary);
+                  } else {
+                    setSummary('Failed to get summary.');
+                  }
+                } catch (err) {
+                  setSummary('Error contacting summarizer.');
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+            >
+              {isLoading ? '⏳ Loading...' : '🤖 Summarize'}
+            </button>
+            
+            {/* Summary Box */}
+            {summary && (
+              <div className="summary-box">
+                <div className="summary-header">
+                  <span>📋 Summary</span>
+                  <button 
+                    className="close-btn"
+                    onClick={() => setSummary('')}
+                    title="Close summary"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="summary-content">
+                  {summary}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
         </div>
       </div>
-    </div>
   );
 };
 
