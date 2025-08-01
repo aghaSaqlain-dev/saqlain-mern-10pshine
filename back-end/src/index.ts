@@ -7,6 +7,7 @@ import folderRoute from './routes/folderRoute';
 import notesRoute from './routes/notesRoute';
 import {rateLimiter} from './middlware/auth';
 import cors from 'cors';
+import logger from './utils/logger';
 
 const app = express();
 
@@ -27,18 +28,16 @@ app.use('/api', notesRoute)
 
 /*****************************************************/
 
-
 app.get('/', (req: Request, res: Response) => {
+  logger.info('Root endpoint accessed');
   res.send('Hello from Express + TypeScript!');
 });
 
-
-
 app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-    console.error(`[${new Date().toISOString()}] Error: ${error.message}`);
-    res.status(error.statusCode || 500).json({ error: error.message || 'Internal server error' });
+    logger.error({ error: error.message, url: req.url }, 'Error occurred');
+    res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  logger.info({ port }, 'Server started successfully');
 });
