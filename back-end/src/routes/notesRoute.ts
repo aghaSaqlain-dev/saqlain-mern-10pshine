@@ -19,7 +19,7 @@ router.get('/notes/:id',authenticate,  asyncHandler(getNoteById)); // Get a spec
 router.post('/notes',authenticate,  asyncHandler(createNote)); // Create a new note
 router.post('/notes/:id/pin',authenticate,  asyncHandler(pinNote)); // pin/unpin a note
 router.post('/notes/:id/restore',authenticate, asyncHandler(restoreNote)); // retore from trash
-router.patch('/notes/:id',  asyncHandler(updateNote)); // Update a specific note by ID
+router.patch('/notes/:id',authenticate,  asyncHandler(updateNote)); // Update a specific note by ID
 router.delete('/notes/:id',authenticate,  asyncHandler(deleteNote)); // Delete a specific note by ID
 router.delete('/notes/:id/force',authenticate,  asyncHandler(forceDeleteNote)); // permanently delete a specific note by ID
 

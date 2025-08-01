@@ -8,9 +8,46 @@ import notesRoute from './routes/notesRoute';
 import {rateLimiter} from './middlware/auth';
 import cors from 'cors';
 import logger from './utils/logger';
+import pinoHttp from 'pino-http';
 
 const app = express();
 
+app.use(pinoHttp({
+  logger,
+  autoLogging: true,
+  customLogLevel: (req, res, err) => {
+    if (res.statusCode >= 400 && res.statusCode < 500) {
+      return 'warn';
+    } else if (res.statusCode >= 500 || err) {
+      return 'error';
+    }
+    return 'info';
+  },
+  customSuccessMessage: (req, res) => {
+    return `${req.method} ${req.url} - ${res.statusCode}`;
+  },
+  customErrorMessage: (req, res, err) => {
+    return `${req.method} ${req.url} - ${res.statusCode} - ${err.message}`;
+  },
+  serializers: {
+    req: (req) => ({
+      method: req.method,
+      url: req.url,
+      headers: {
+        'user-agent': req.headers['user-agent'],
+        'content-type': req.headers['content-type']
+        // Don't log authorization headers for security
+      },
+      remoteAddress: req.remoteAddress
+    }),
+    res: (res) => ({
+      statusCode: res.statusCode,
+      headers: {
+        'content-type': res.headers?.['content-type']
+      }
+    })
+  }
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb', type: 'application/json' }));
