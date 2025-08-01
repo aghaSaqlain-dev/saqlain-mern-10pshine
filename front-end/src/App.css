@@ -1,38 +1,41 @@
-.App {
-  text-align: center;
+.ProseMirror {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  outline: none !important;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.body {
+  border: none !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Fix pagination container */
+[data-page-body="true"] {
+  width: calc(100% - 50px) !important;
+  max-width: 210mm !important;
+  min-width: 300px !important;
+  height: 297mm !important; /* Fixed height for A4 page */
+  margin: 25px auto !important;
+  padding: 25mm 20mm !important; /* Use proper page margins */
+  box-sizing: border-box !important;
+  overflow: hidden !important; /* Critical: Hide overflow to trigger pagination */
+  background: #fff !important;
+  border: 1px solid #ddd !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
+/* Remove ALL .tiptap-page styles - they conflict with pagination */
+/* The pagination extension handles page styling automatically */
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Prevent elements from breaking across pages */
+[data-page-body="true"] p,
+[data-page-body="true"] h1,
+[data-page-body="true"] h2,
+[data-page-body="true"] h3,
+[data-page-body="true"] li,
+[data-page-body="true"] ul,
+[data-page-body="true"] ol {
+  break-inside: avoid !important;
+  max-width: 100% !important;
+  word-break: break-word !important;
 }

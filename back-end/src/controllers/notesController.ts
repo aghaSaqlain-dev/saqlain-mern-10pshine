@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '../../generated/prisma';    
-
+import { PrismaClient } from '../../generated/prisma'; 
 const prisma = new PrismaClient();
 
 // Get all notes
 export const getAllNotes = async (req: Request, res: Response) => {
     try {
-        const { user_id, folder_id } = req.body;
+        console.log(req.query)
+        console.log("here")
+        const { user_id, folder_id } = req.query;
         console.log(req)
         console.log(user_id)
         console.log(folder_id)
@@ -16,7 +17,8 @@ export const getAllNotes = async (req: Request, res: Response) => {
         const notes = await prisma.note.findMany({where: {
             //user should access only his own notes
             user_id: Number(user_id),
-            folder_id: Number(folder_id)
+            folder_id: Number(folder_id),
+            is_trashed: false
         },});
         if(!notes || notes.length === 0) {
             return res.status(404).json({ message: "No notes found for this user and folder" });
@@ -42,7 +44,8 @@ export const getNoteById = async (req: Request, res: Response) => {
             //user should access only his own notes
             user_id: Number(user_id),
             folder_id: Number(folder_id),
-            id : Number(note_id)
+            id : Number(note_id),
+            is_trashed: false
         },});
         if(!note || note.length === 0) {
             return res.status(404).json({ message: "No note found for this id" });
@@ -114,8 +117,10 @@ export const restoreNote = async (req: Request, res: Response) => {
 // Update a specific note by ID
 export const updateNote = async (req: Request, res: Response) => {
     try {
+        console.log(req)
         const { id } = req.params;
         const { title, content, folder_id, is_pinned, is_trashed, is_shared } = req.body;
+        console.log(title, content, folder_id, is_pinned, is_trashed, is_shared)
         const note = await prisma.note.update({
             where: { id: Number(id) },
             data: {
@@ -140,7 +145,7 @@ export const deleteNote = async (req: Request, res: Response) => {
         const { id } = req.params;
         const note = await prisma.note.update({
             where: { id: Number(id) },
-            data: { is_trashed: true },
+            data: { is_trashed: true, trashed_at: new Date() },
         });
         res.json({ message: "Note moved to trash", note });
     } catch (error) {
