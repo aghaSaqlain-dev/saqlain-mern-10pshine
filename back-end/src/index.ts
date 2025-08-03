@@ -75,6 +75,10 @@ app.use((error: any, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(port, () => {
-  logger.info({ port }, 'Server started successfully');
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+    logger.info({ port }, 'Server started successfully');
+  });
+}
+
+export default app;

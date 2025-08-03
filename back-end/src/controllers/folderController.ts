@@ -4,18 +4,20 @@ import logger from '../utils/logger';
 
 const prisma = new PrismaClient();
 
-// Create a new folder
+
 const createFolder = async (req: Request, res: Response) => {
+    logger.info({ action: 'create_folder_attempt', body: req.body }, 'Attempting to create folder');
+    
     const { name, user_id, domain } = req.body; 
     
-    logger.info({ name, user_id, domain, action: 'create_folder_attempt' }, 'Creating new folder');
-    
     if (!name || !user_id || !domain) {
-        logger.warn({ name, user_id, domain, action: 'create_folder_validation_failed' }, 'Missing required fields');
+        logger.warn({ name, user_id, domain }, 'Missing required fields for folder creation');
         return res.status(400).json({ message: "Name, user_id, and domain are required" });
     }
     
     try {
+        logger.info({ name, user_id, domain }, 'Creating folder with valid data');
+        
         const newFolder = await prisma.folder.create({
             data: {
                 name,
@@ -24,79 +26,52 @@ const createFolder = async (req: Request, res: Response) => {
             }
         });
         
-        logger.info({ 
-            folderId: newFolder.id, 
-            name, 
-            user_id: Number(user_id), 
-            domain,
-            action: 'create_folder_success' 
-        }, 'Folder created successfully');
-        
-        res.status(201).json(newFolder);
+        logger.info({ folderId: newFolder.id, name }, 'Folder created successfully');
+        return res.status(201).json(newFolder);
     } catch (error) {
-        logger.error({ 
-            name, 
-            user_id, 
-            domain,
-            error: (error as Error).message,
-            action: 'create_folder_error' 
-        }, 'Error creating folder');
+        logger.error({ error: (error as Error).message, name, user_id, domain }, 'Error creating folder');
         return res.status(500).json({ message: "Internal server error" });
     }
 };
 
 // Get all folders or a specific folder by ID
 const getFolders = async (req: Request, res: Response) => {
-    const { id, uid } = req.body;
-    
-    logger.info({ id, uid, action: 'get_folders_attempt' }, 'Fetching folders');
+    logger.info({ action: 'get_folders_attempt', body: req.body }, 'Attempting to fetch folders');
     
     try {
+        const { id, uid } = req.body;
+        
         if (id && uid) {
-            logger.info({ id, uid, action: 'get_single_folder' }, 'Fetching specific folder');
+            logger.info({ id, uid }, 'Fetching single folder');
             
             const folder = await prisma.folder.findFirst({ 
                 where: { id: Number(id), user_id: Number(uid) } 
             });
             
             if (!folder) {
-                logger.warn({ id, uid, action: 'get_folder_not_found' }, 'Folder not found');
+                logger.warn({ id, uid }, 'Folder not found');
                 return res.status(404).json({ message: "Folder not found" });
             }
             
-            logger.info({ 
-                folderId: folder.id, 
-                userId: uid, 
-                action: 'get_folder_success' 
-            }, 'Folder retrieved successfully');
-            
+            logger.info({ folderId: folder.id }, 'Single folder retrieved successfully');
             return res.json(folder);
             
         } else if (uid) {
-            logger.info({ uid, action: 'get_all_folders' }, 'Fetching all folders for user');
+            logger.info({ uid }, 'Fetching all folders for user');
             
             const allFolders = await prisma.folder.findMany({
                 where: { user_id: Number(uid) }
             });
             
-            logger.info({ 
-                userId: uid, 
-                folderCount: allFolders.length, 
-                action: 'get_folders_success' 
-            }, 'All folders retrieved successfully');
+            logger.info({ count: allFolders.length, uid }, 'All folders retrieved successfully');
+            return res.json(allFolders);
             
-            res.json(allFolders);
         } else {
-            logger.warn({ id, uid, action: 'get_folders_invalid_params' }, 'Invalid request parameters');
+            logger.warn({ id, uid }, 'Invalid request parameters');
             throw new Error("Invalid request parameters");
         }
     } catch (error) {
-        logger.error({ 
-            id, 
-            uid, 
-            error: (error as Error).message,
-            action: 'get_folders_error' 
-        }, 'Error fetching folders');
+        logger.error({ error: (error as Error) }, 'Error fetching folders');
         return res.status(500).json({ message: "Internal server error" });
     }
 };
@@ -106,8 +81,8 @@ const updateFolder = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { domain } = req.body;
     
-    logger.info({ id, domain, action: 'update_folder_attempt' }, 'Updating folder');
-    
+    logger.info({ id, domain, action: 'update_folder_attempt' }, 'Attempting to update folder');
+
     try {
         const updatedFolder = await prisma.folder.update({
             where: { id: Number(id) },
@@ -116,25 +91,16 @@ const updateFolder = async (req: Request, res: Response) => {
             },
         });
         
-        logger.info({ 
-            folderId: updatedFolder.id, 
-            domain, 
-            action: 'update_folder_success' 
-        }, 'Folder updated successfully');
-        
-        res.json(updatedFolder);
+        logger.info({ folderId: id, domain }, 'Folder updated successfully');
+        return res.json(updatedFolder);
     } catch (error) {
-        logger.error({ 
-            id, 
-            domain, 
-            error: (error as Error).message,
-            action: 'update_folder_error' 
-        }, 'Error updating folder');
-        
+        logger.error({ error: (error as Error).message, id, domain }, 'Error updating folder');
+
         if (typeof error === 'object' && error !== null && 'code' in error && (error as any).code === 'P2025') {
-            logger.warn({ id, action: 'update_folder_not_found' }, 'Folder not found for update');
+            logger.warn({ id }, 'Folder not found for update');
             return res.status(404).json({ message: "Folder not found" });
         }
+        
         return res.status(500).json({ message: "Internal server error" });
     }
 };
@@ -143,17 +109,17 @@ const updateFolder = async (req: Request, res: Response) => {
 const deleteFolder = async (req: Request, res: Response) => {
     const { id } = req.params;
     
-    logger.info({ id, action: 'delete_folder_attempt' }, 'Deleting folder');
-    
+    logger.info({ id, action: 'delete_folder_attempt' }, 'Attempting to delete folder');
+
     try {
-        // Delete the notes associated with the folder first
+        // Delete associated notes first
         const deletedNotes = await prisma.note.deleteMany({
             where: { folder_id: Number(id) },
         });
         
         logger.info({ 
             folderId: id, 
-            deletedNotesCount: deletedNotes.count, 
+            deletedNotesCount: deletedNotes.count,
             action: 'delete_folder_notes' 
         }, 'Associated notes deleted');
         
@@ -162,26 +128,19 @@ const deleteFolder = async (req: Request, res: Response) => {
             where: { id: Number(id) },
         });
         
-        logger.info({ 
-            folderId: id, 
-            deletedNotesCount: deletedNotes.count,
-            action: 'delete_folder_success' 
-        }, 'Folder and associated notes deleted successfully');
-        
-        res.json({ message: "Folder deleted successfully" });
+        logger.info({ folderId: id }, 'Folder deleted successfully');
+        return res.json({ message: "Folder deleted successfully" });
     } catch (error) {
-        logger.error({ 
-            id, 
-            error: (error as Error).message,
-            action: 'delete_folder_error' 
-        }, 'Error deleting folder');
+        logger.error({ error: (error as Error).message, id }, 'Error deleting folder');
         
         if (typeof error === 'object' && error !== null && 'code' in error && (error as any).code === 'P2025') {
-            logger.warn({ id, action: 'delete_folder_not_found' }, 'Folder not found for deletion');
+            logger.warn({ id }, 'Folder not found for deletion');
             return res.status(404).json({ message: "Folder not found" });
         }
+        
         return res.status(500).json({ message: "Internal server error" });
     }
 };
-
 export { createFolder, getFolders, updateFolder, deleteFolder };
+
+ 
