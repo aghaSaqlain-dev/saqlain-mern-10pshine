@@ -139,16 +139,21 @@ export const NoteProvider = ({ children }: { children: React.ReactNode }) => {
 // In your noteContext.tsx - recoverNote function
 const recoverNote = async (noteId: number): Promise<void> => {
     try {
-        const token = localStorage.getItem('token');
-
-        console.log('Frontend: Calling recover API for noteId:', noteId); // Add this for debugging
-
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem("user");
+      const user = userStr ? JSON.parse(userStr) : null;
+      const uid = user?.userId;
+       if (!uid) {
+        toast.error("User ID not found in localStorage");
+        throw new Error("User ID not found in localStorage");
+      }
         const response = await fetch(API_RECOVER_NOTE(noteId), { // Make sure this matches your route
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
-            }
+            },
+            body: JSON.stringify({uid : uid})
         });
 
         console.log('Frontend: Response status:', response.status); // Add this too
