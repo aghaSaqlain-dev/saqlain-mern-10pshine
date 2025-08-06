@@ -5,6 +5,9 @@ import { useNoteContext } from '../../context/noteContext';
 import folderLogo from '../../variables/Varibles'; 
 import { LogoutButton } from './LogoutButton';
 import { Note } from '../../Models/note';
+import { Trash2 } from 'lucide-react';
+import TrashModal from '../modal/TrashModal';
+
 
 type SidebarProps = {
   collapsed: boolean;
@@ -29,6 +32,8 @@ const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNo
   const [isCreatingNoteLoading, setIsCreatingNoteLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<{type: 'folder' | 'note', id: number} | null>(null);
   const [deleteTimer, setDeleteTimer] = useState(0);
+  const [isTrashModalOpen, setIsTrashModalOpen] = useState(false);
+
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -59,7 +64,13 @@ const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNo
   }
 }, [deleteTarget]);
 
-
+  const handleTrashClick = () => {
+    setIsTrashModalOpen(true);
+};
+  const clearCurrentNote = () => {
+  setCurrentNote(null);
+  setSelectedNote(null);
+};
   const handleDelete = async (action: 'forceDelete' | 'moveToTrash') => {
   if (!deleteTarget) return;
   if (deleteTarget.type === 'folder') {
@@ -331,8 +342,27 @@ const handleRenameInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fold
     </li>
   )}
 </ul>
-        {/* logout button */}
-        <LogoutButton />
+<div className="sidebar-bottom-section">
+  <div 
+    className="sidebar-item trash-item"
+    onClick={() => setIsTrashModalOpen(true)}
+  >
+    <Trash2 size={20} />
+    {!collapsed && <span>Trash</span>}
+  </div>
+  
+  {/* Your existing logout button */}
+  <LogoutButton />
+</div>
+
+{/* Keep the TrashModal outside */}
+{isTrashModalOpen && (
+  <TrashModal 
+    isOpen={isTrashModalOpen}
+    onClose={() => setIsTrashModalOpen(false)}
+    onNoteClear={clearCurrentNote} // Add this prop
+  />
+)}
         {deleteTarget && (
   <div className="modal-backdrop">
     <div className="modal">

@@ -53,7 +53,7 @@ export const FolderProvider = ({ children }: { children: ReactNode }) => {
             console.error("Failed to create folder:", response.data);
          }
       } catch (error) {
-         toast.error("Error creating folder.");
+        // toast.error("Error creating folder.");
          console.error("Error creating folder:", error);
       }
    };

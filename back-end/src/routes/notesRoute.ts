@@ -8,7 +8,10 @@ import {
   restoreNote,
   updateNote,
   deleteNote,
-  forceDeleteNote}
+  forceDeleteNote,
+  trashedNotes,
+  recoverNote
+}
   from '../controllers/notesController';
 import { authenticate } from '../middlware/auth';
 
@@ -22,6 +25,8 @@ router.post('/notes/:id/restore',authenticate, asyncHandler(restoreNote)); // re
 router.patch('/notes/:id',authenticate,  asyncHandler(updateNote)); // Update a specific note by ID
 router.delete('/notes/:id',authenticate,  asyncHandler(deleteNote)); // Delete a specific note by ID
 router.delete('/notes/:id/force',authenticate,  asyncHandler(forceDeleteNote)); // permanently delete a specific note by ID
+router.post('/notes/trashed',authenticate, asyncHandler(trashedNotes))
+router.patch('notes/:id/recover', authenticate, asyncHandler(recoverNote))
 
 
 export default router;

@@ -340,3 +340,98 @@ export const forceDeleteNote = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const trashedNotes = async(req: Request, res: Response) => {
+    try {
+        const { uid } = req.body;
+        
+        logger.info({ 
+            uid, 
+            action: 'get_trashed_notes_attempt' 
+        }, 'Fetching trashed notes');
+        
+        if (!uid) {
+            logger.warn({ 
+                uid, 
+                action: 'get_trashed_notes_validation_failed' 
+            }, 'Missing user ID');
+            return res.status(400).json({ message: "User ID is required" });
+        }
+        
+        const trashedNotes = await prisma.note.findMany({
+            where: {
+                user_id: Number(uid),
+                is_trashed: true
+            },
+            include: {
+                folder: {  // Include folder information
+                    select: {
+                        id: true,
+                        domain: true,
+                       
+                    }
+                }
+            },
+            orderBy: {
+                updated_at: 'desc'
+            }
+        });
+        
+        logger.info({ 
+            uid: Number(uid), 
+            trashedNotesCount: trashedNotes.length,
+            action: 'get_trashed_notes_success' 
+        }, 'Trashed notes retrieved successfully');
+        
+        res.json(trashedNotes);
+    } catch (error) {
+        logger.error({ 
+            uid: req.body.uid,
+            error: (error as Error).message,
+            action: 'get_trashed_notes_error' 
+        }, 'Error fetching trashed notes');
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const recoverNote = async(req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        
+        logger.info({ 
+            noteId: id, 
+            action: 'recover_note_attempt' 
+        }, 'Recovering note from trash');
+        
+        if (!id) {
+            logger.warn({ 
+                noteId: id, 
+                action: 'recover_note_validation_failed' 
+            }, 'Missing note ID');
+            return res.status(400).json({ message: "Note ID is required" });
+        }
+        
+        const recoveredNote = await prisma.note.update({
+            where: { id: Number(id) },
+            data: { 
+                is_trashed: false,
+                // Optionally remove trashed_at if you're using it
+                // trashed_at: null 
+            }
+        });
+        
+        logger.info({ 
+            noteId: recoveredNote.id, 
+            action: 'recover_note_success' 
+        }, 'Note recovered successfully');
+        
+        res.json(recoveredNote);
+    } catch (error) {
+        logger.error({ 
+            noteId: req.params.id,
+            error: (error as Error).message,
+            action: 'recover_note_error' 
+        }, 'Error recovering note');
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
