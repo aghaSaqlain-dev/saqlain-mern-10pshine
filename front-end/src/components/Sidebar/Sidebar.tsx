@@ -73,15 +73,23 @@ const Sidebar: React.FC<SidebarProps> = ({collapsed, setCollapsed, setSelectedNo
 };
   const handleDelete = async (action: 'forceDelete' | 'moveToTrash') => {
   if (!deleteTarget) return;
+  
   if (deleteTarget.type === 'folder') {
-      await deleteFolder(deleteTarget.id); 
-      getUserFolders();
+    await deleteFolder(deleteTarget.id); 
+    getUserFolders();
   } else if (deleteTarget.type === 'note') {
-      if(action === 'moveToTrash'){
-        await deleteNote(deleteTarget.id);
-      }else if(action === 'forceDelete'){
-        await forceDeleteNote(deleteTarget.id);
-      }
+    // Clear current note if it's the one being deleted
+    if (currentNote && currentNote.id === deleteTarget.id) {
+      setCurrentNote(null);
+      setSelectedNote(null); // This will clear the dashboard
+    }
+    
+    if (action === 'moveToTrash') {
+      await deleteNote(deleteTarget.id);
+    } else if (action === 'forceDelete') {
+      await forceDeleteNote(deleteTarget.id);
+    }
+    
     const deletedNote = notes.find(note => note.id === deleteTarget.id);
     if (deletedNote) {
       getUserNotes(deletedNote.folder_id);

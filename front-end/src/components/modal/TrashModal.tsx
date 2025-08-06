@@ -5,11 +5,12 @@ import { useNoteContext } from '../../context/noteContext';
 import { Note } from '../../Models/note';
 import { toast } from 'react-toastify';
 import { getTextContent } from '../../Helpers/textContentExtractor';
+import { formatDate } from '../../Helpers/dateFormat';
 
 interface TrashModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onNoteClear?: () => void; // Add this
+    onNoteClear?: () => void; 
 
 }
 
@@ -22,21 +23,8 @@ const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose, onNoteClear })
         noteId: null
     });
 
-    const { fetchTrashedNotes, recoverNote } = useNoteContext();
+    const { fetchTrashedNotes, recoverNote, forceDeleteNote } = useNoteContext();
 
- 
-
-    // Format date helper
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
 
     // Fetch trashed notes function
     const loadTrashedNotes = async () => {
@@ -85,33 +73,25 @@ const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose, onNoteClear })
     };
 
     // Permanently delete note
-    const handlePermanentDelete = async () => {
-        if (!confirmDelete.noteId) return;
-
+const handlePermanentDelete = async (noteId: number) => {
+    if (!confirmDelete.noteId) return;
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/notes/${confirmDelete.noteId}/permanent`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        setTrashedNotes(prev => prev.filter(note => note.id !== confirmDelete.noteId));
-        hideDeleteConfirmation();
-        toast.success('Note permanently deleted');
+        await forceDeleteNote(noteId);
         
-        // Clear current note if provided
+        // Remove the note from the trashed notes list immediately
+        setTrashedNotes(prev => prev.filter(note => note.id !== noteId));
+        
+        // Clear the current note if it's the one being deleted
         onNoteClear?.();
-      }
-    } catch (err) {
-      console.error('Error deleting note:', err);
-      toast.error('Error deleting note');
+        
+        // Hide the confirmation modal
+        setConfirmDelete({ show: false, noteId: null });
+        
+    } catch (error) {
+        console.error('Error permanently deleting note:', error);
+        toast.error('Failed to permanently delete note');
     }
-    };
-
+};
     // Load trashed notes when modal opens
     useEffect(() => {
         if (isOpen) {
@@ -275,11 +255,15 @@ const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose, onNoteClear })
                             <h3>Permanently Delete Note?</h3>
                             <p>This action cannot be undone. The note will be permanently deleted from the database.</p>
                             <div className="confirm-modal-actions">
-                                <button 
-                                    className="confirm-delete-btn"
-                                    onClick={handlePermanentDelete}
-                                >
-                                    Delete Forever
+                               <button 
+                                className="confirm-delete-btn"
+                                onClick={() => {
+                                    if (typeof confirmDelete.noteId === 'number') {
+                                        handlePermanentDelete(confirmDelete.noteId);
+                                    }
+                                }}
+                            >
+                                Delete Forever
                                 </button>
                                 <button 
                                     className="cancel-btn"
