@@ -199,37 +199,6 @@ export const pinNote = async (req: Request, res: Response) => {
     }
 };
 
-// Restore a note from trash
-export const restoreNote = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        
-        logger.info({ 
-            noteId: id, 
-            action: 'restore_note_attempt' 
-        }, 'Restoring note from trash');
-        
-        const note = await prisma.note.update({
-            where: { id: Number(id) },
-            data: { is_trashed: false },
-        });
-        
-        logger.info({ 
-            noteId: note.id, 
-            action: 'restore_note_success' 
-        }, 'Note restored successfully');
-        
-        res.json(note);
-    } catch (error) {
-        logger.error({ 
-            noteId: req.params.id,
-            error: (error as Error).message,
-            action: 'restore_note_error' 
-        }, 'Error restoring note');
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
-
 // Update a specific note by ID
 export const updateNote = async (req: Request, res: Response) => {
     try {
@@ -395,8 +364,18 @@ export const trashedNotes = async(req: Request, res: Response) => {
 }
 
 export const recoverNote = async(req: Request, res: Response) => {
+    console.log('=== RECOVER NOTE FUNCTION CALLED ===');
+    console.log('Request method:', req.method);
+    console.log('Request URL:', req.url);
+    console.log('Request params:', req.params);
+    console.log('Request body:', req.body);
+    console.log('Request headers:', req.headers);
+    
     try {
         const { id } = req.params;
+        
+        console.log('Extracted id from params:', id);
+        console.log('Type of id:', typeof id);
         
         logger.info({ 
             noteId: id, 
@@ -404,6 +383,7 @@ export const recoverNote = async(req: Request, res: Response) => {
         }, 'Recovering note from trash');
         
         if (!id) {
+            console.log('ERROR: No id provided');
             logger.warn({ 
                 noteId: id, 
                 action: 'recover_note_validation_failed' 
@@ -411,14 +391,17 @@ export const recoverNote = async(req: Request, res: Response) => {
             return res.status(400).json({ message: "Note ID is required" });
         }
         
+        console.log('About to update note with id:', Number(id));
+        
         const recoveredNote = await prisma.note.update({
             where: { id: Number(id) },
             data: { 
                 is_trashed: false,
-                // Optionally remove trashed_at if you're using it
-                // trashed_at: null 
+                trashed_at: null 
             }
         });
+        
+        console.log('Note recovered successfully:', recoveredNote);
         
         logger.info({ 
             noteId: recoveredNote.id, 
@@ -427,6 +410,7 @@ export const recoverNote = async(req: Request, res: Response) => {
         
         res.json(recoveredNote);
     } catch (error) {
+        console.log('ERROR in recoverNote:', error);
         logger.error({ 
             noteId: req.params.id,
             error: (error as Error).message,

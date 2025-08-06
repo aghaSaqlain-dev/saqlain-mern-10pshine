@@ -53,12 +53,11 @@ const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose, onNoteClear })
     // Recover note from trash
     const handleRecover = async (noteId: number) => {
         try {
+            console.log(noteId);
             await recoverNote(noteId);
             setTrashedNotes(prev => prev.filter(note => note.id !== noteId));
-            alert('Note recovered successfully!');
         } catch (err) {
             console.error('Error recovering note:', err);
-            alert('Failed to recover note');
         }
     };
 

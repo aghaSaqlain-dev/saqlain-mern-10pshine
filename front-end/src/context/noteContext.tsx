@@ -2,9 +2,10 @@ import { createContext, useContext, useState } from "react";
 import axios from 'axios';
 import { noteContextType } from "../Models/note";
 import { Note } from "../Models/note";
-import { API_GET_NOTES, API_NOTE_DELETE_PERMANENTLY, API_GET_TRASH_NOTES } from "../variables/APIS";
+import { API_GET_NOTES, API_NOTE_DELETE_PERMANENTLY, API_RECOVER_NOTE, API_GET_TRASH_NOTES } from "../variables/APIS";
 import { newlyCreatedNoteContent } from "../variables/Varibles";
 import { toast } from "react-toastify";
+
 
 const noteContext = createContext<noteContextType>({} as any);
 
@@ -135,17 +136,22 @@ export const NoteProvider = ({ children }: { children: React.ReactNode }) => {
     }
 };
 
+// In your noteContext.tsx - recoverNote function
 const recoverNote = async (noteId: number): Promise<void> => {
     try {
-        const token = localStorage.getItem('token'); // Fix: use 'token' instead of 'authToken'
+        const token = localStorage.getItem('token');
 
-        const response = await fetch(`/api/notes/${noteId}/recover`, {
+        console.log('Frontend: Calling recover API for noteId:', noteId); // Add this for debugging
+
+        const response = await fetch(API_RECOVER_NOTE(noteId), { // Make sure this matches your route
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             }
         });
+
+        console.log('Frontend: Response status:', response.status); // Add this too
 
         if (!response.ok) {
             const errorData = await response.json();
@@ -154,7 +160,7 @@ const recoverNote = async (noteId: number): Promise<void> => {
         
         toast.success("Note recovered successfully");
     } catch (error) {
-        console.error('Error recovering note:', error);
+        console.error('Frontend: Error recovering note:', error);
         toast.error("Failed to recover note");
         throw error;
     }
