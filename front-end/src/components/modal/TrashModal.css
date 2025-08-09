@@ -10,6 +10,8 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    cursor: pointer;
+
 }
 
 .trash-modal {
@@ -20,6 +22,7 @@
     max-height: 80vh;
     overflow: hidden;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    cursor: default;
 }
 
 .trash-modal-header {
@@ -267,6 +270,7 @@
     justify-content: center;
     align-items: center;
     z-index: 1100;
+    cursor: default;
 }
 
 .confirm-modal {
@@ -277,6 +281,7 @@
     width: 90%;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     text-align: center;
+    cursor: default;
 }
 
 .confirm-modal h3 {
@@ -355,22 +360,6 @@
     background-color: #2563eb;
 }
 
-/* Click outside to close functionality */
-.trash-modal-overlay {
-    cursor: pointer;
-}
-
-.trash-modal {
-    cursor: default;
-}
-
-.confirm-modal-overlay {
-    cursor: pointer;
-}
-
-.confirm-modal {
-    cursor: default;
-}
 
 /* Enhanced styles for the updated TrashModal */
 
@@ -509,10 +498,6 @@
 }
 
 /* Action Buttons */
-.note-actions {
-    display: flex;
-    gap: 10px;
-}
 
 .action-btn {
     flex: 1;
@@ -566,21 +551,7 @@
     color: #6b7280;
 }
 
-.empty-state h3 {
-    margin: 16px 0 8px;
-    color: #374151;
-    font-size: 18px;
-}
 
-.spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid #f3f4f6;
-    border-top: 3px solid #3b82f6;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 16px;
-}
 
 @keyframes spin {
     0% { transform: rotate(0deg); }

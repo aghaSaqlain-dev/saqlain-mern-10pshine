@@ -1,7 +1,5 @@
 import * as Yup from "yup";
-import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "../../context/useAuth";
-import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import './LoginPage.css';
@@ -24,15 +22,6 @@ const LoginPage = (props: Props) => {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{userName?: string, password?: string}>({});
 
-  // const {
-  //   register,
-  //   handleSubmit,
-  //   formState: { errors },
-  // } = useForm<LoginFormsInputs>({ resolver: yupResolver(validation) });
-
-  // const handleLogin = (form: LoginFormsInputs) => {
-  //   loginUser(form.userName, form.password);
-  // };
 const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     

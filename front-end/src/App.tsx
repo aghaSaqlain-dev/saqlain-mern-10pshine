@@ -8,12 +8,12 @@ import { Outlet } from 'react-router-dom';
 const App: React.FC = () => {
 
   return (
-    <>
+    
     <UserProvider>
       <Outlet />
       <ToastContainer />
     </UserProvider>
-    </>
+    
   );
 };
 

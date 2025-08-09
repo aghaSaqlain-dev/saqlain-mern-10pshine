@@ -189,29 +189,7 @@
   cursor: not-allowed;
   border: none;
 }
-/* Update the existing trash-item styles in Sidebar.css */
-.sidebar-item.trash-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0.6rem 0.5rem;
-    margin: 8px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: #6b7280;
-    font-size: 1rem;
-}
 
-.sidebar-item.trash-item:hover {
-    background-color: #e3eafc;
-    color: #374151;
-}
-
-/* Hide trash text when sidebar is collapsed */
-.sidebar.collapsed .trash-item span {
-    display: none;
-}
 /* Add to your Sidebar.css */
 
 .sidebar-bottom-section {

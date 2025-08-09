@@ -174,6 +174,7 @@ const MenuBar: React.FC<MenuBarProps> = ({ pageCount, wordCount, disabled }) => 
                   }
                 } catch (err) {
                   setSummary('Error contacting summarizer.');
+                  console.log(err)
                 } finally {
                   setIsLoading(false);
                 }

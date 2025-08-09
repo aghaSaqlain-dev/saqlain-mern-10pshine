@@ -11,7 +11,6 @@ interface TrashModalProps {
     isOpen: boolean;
     onClose: () => void;
     onNoteClear?: () => void; 
-
 }
 
 const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose, onNoteClear }) => {
@@ -25,6 +24,25 @@ const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose, onNoteClear })
 
     const { fetchTrashedNotes, recoverNote, forceDeleteNote } = useNoteContext();
 
+    // Keyboard event handlers
+    const handleKeyDown = (e: React.KeyboardEvent, action: () => void) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            action();
+        }
+    };
+
+    const handleEscapeKey = (e: React.KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            onClose();
+        }
+    };
+
+    const handleConfirmEscapeKey = (e: React.KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            hideDeleteConfirmation();
+        }
+    };
 
     // Fetch trashed notes function
     const loadTrashedNotes = async () => {
@@ -35,7 +53,6 @@ const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose, onNoteClear })
             const notes = await fetchTrashedNotes();
             console.log('Fetched trashed notes:', notes);
             
-            // Ensure we have an array
             if (Array.isArray(notes)) {
                 setTrashedNotes(notes);
             } else {
@@ -72,25 +89,19 @@ const TrashModal: React.FC<TrashModalProps> = ({ isOpen, onClose, onNoteClear })
     };
 
     // Permanently delete note
-const handlePermanentDelete = async (noteId: number) => {
-    if (!confirmDelete.noteId) return;
-    try {
-        await forceDeleteNote(noteId);
-        
-        // Remove the note from the trashed notes list immediately
-        setTrashedNotes(prev => prev.filter(note => note.id !== noteId));
-        
-        // Clear the current note if it's the one being deleted
-        onNoteClear?.();
-        
-        // Hide the confirmation modal
-        setConfirmDelete({ show: false, noteId: null });
-        
-    } catch (error) {
-        console.error('Error permanently deleting note:', error);
-        toast.error('Failed to permanently delete note');
-    }
-};
+    const handlePermanentDelete = async (noteId: number) => {
+        if (!confirmDelete.noteId) return;
+        try {
+            await forceDeleteNote(noteId);
+            setTrashedNotes(prev => prev.filter(note => note.id !== noteId));
+            onNoteClear?.();
+            setConfirmDelete({ show: false, noteId: null });
+        } catch (error) {
+            console.error('Error permanently deleting note:', error);
+            toast.error('Failed to permanently delete note');
+        }
+    };
+
     // Load trashed notes when modal opens
     useEffect(() => {
         if (isOpen) {
@@ -111,8 +122,17 @@ const handlePermanentDelete = async (noteId: number) => {
     if (!isOpen) return null;
 
     return (
-        <div className="trash-modal-overlay" onClick={onClose}>
-            <div className="trash-modal" onClick={(e) => e.stopPropagation()}>
+        <div
+            className="trash-modal-overlay"
+            aria-label="Close trash modal"
+            onClick={onClose}
+            style={{ all: 'unset', display: 'block', width: '100%', height: '100%' }}
+        >
+            <dialog 
+                className="trash-modal" 
+                aria-modal="true"
+                onKeyDown={handleEscapeKey}
+            >
                 <div className="trash-modal-header">
                     <h2>
                         <Trash2 size={24} />
@@ -121,6 +141,7 @@ const handlePermanentDelete = async (noteId: number) => {
                     <button 
                         className="close-button"
                         onClick={onClose}
+                        onKeyDown={(e) => handleKeyDown(e, onClose)}
                         aria-label="Close trash modal"
                     >
                         <X size={24} />
@@ -138,7 +159,11 @@ const handlePermanentDelete = async (noteId: number) => {
                     {error && (
                         <div className="error-state">
                             <p className="error-message">{error}</p>
-                            <button onClick={loadTrashedNotes} className="retry-button">
+                            <button 
+                                onClick={loadTrashedNotes} 
+                                onKeyDown={(e) => handleKeyDown(e, loadTrashedNotes)}
+                                className="retry-button"
+                            >
                                 Try Again
                             </button>
                         </div>
@@ -211,7 +236,6 @@ const handlePermanentDelete = async (noteId: number) => {
                                                 <span>
                                                     {note.folder ? (
                                                         <span className="folder-info">
-                                                           
                                                             {note.folder.domain}
                                                         </span>
                                                     ) : (
@@ -227,6 +251,7 @@ const handlePermanentDelete = async (noteId: number) => {
                                         <button
                                             className="action-btn recover-btn"
                                             onClick={() => handleRecover(note.id)}
+                                            onKeyDown={(e) => handleKeyDown(e, () => handleRecover(note.id))}
                                             title="Recover this note"
                                         >
                                             <RefreshCw size={16} />
@@ -235,6 +260,7 @@ const handlePermanentDelete = async (noteId: number) => {
                                         <button
                                             className="action-btn delete-btn"
                                             onClick={() => showDeleteConfirmation(note.id)}
+                                            onKeyDown={(e) => handleKeyDown(e, () => showDeleteConfirmation(note.id))}
                                             title="Delete permanently"
                                         >
                                             <Trash2 size={16} />
@@ -249,24 +275,42 @@ const handlePermanentDelete = async (noteId: number) => {
 
                 {/* Custom Confirmation Modal */}
                 {confirmDelete.show && (
-                    <div className="confirm-modal-overlay" onClick={hideDeleteConfirmation}>
-                        <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
-                            <h3>Permanently Delete Note?</h3>
-                            <p>This action cannot be undone. The note will be permanently deleted from the database.</p>
+                    <div
+                        className="confirm-modal-overlay"
+                        aria-modal="true"
+                        aria-labelledby="confirm-delete-title"
+                        aria-describedby="confirm-delete-desc"
+                        tabIndex={-1}
+                        onClick={hideDeleteConfirmation}
+                        onKeyDown={handleConfirmEscapeKey}
+                    >
+                        <div
+                            className="confirm-modal"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <h3 id="confirm-delete-title">Permanently Delete Note?</h3>
+                            <p id="confirm-delete-desc">This action cannot be undone. The note will be permanently deleted from the database.</p>
                             <div className="confirm-modal-actions">
-                               <button 
-                                className="confirm-delete-btn"
-                                onClick={() => {
-                                    if (typeof confirmDelete.noteId === 'number') {
-                                        handlePermanentDelete(confirmDelete.noteId);
-                                    }
-                                }}
-                            >
-                                Delete Forever
+                                <button 
+                                    className="confirm-delete-btn"
+                                    onClick={() => {
+                                        if (typeof confirmDelete.noteId === 'number') {
+                                            handlePermanentDelete(confirmDelete.noteId);
+                                        }
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, () => {
+                                        if (typeof confirmDelete.noteId === 'number') {
+                                            handlePermanentDelete(confirmDelete.noteId);
+                                        }
+                                    })}
+                                    autoFocus
+                                >
+                                    Delete Forever
                                 </button>
                                 <button 
                                     className="cancel-btn"
                                     onClick={hideDeleteConfirmation}
+                                    onKeyDown={(e) => handleKeyDown(e, hideDeleteConfirmation)}
                                 >
                                     Cancel
                                 </button>
@@ -274,9 +318,10 @@ const handlePermanentDelete = async (noteId: number) => {
                         </div>
                     </div>
                 )}
-            </div>
+                </dialog>
         </div>
     );
 };
+
 
 export default TrashModal;

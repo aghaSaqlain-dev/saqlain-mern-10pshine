@@ -1,0 +1,6 @@
+projectKey=frontend-10p-internship
+serverUrl=http://localhost:9000
+serverVersion=25.8.0.112029
+dashboardUrl=http://localhost:9000/dashboard?id=frontend-10p-internship
+ceTaskId=2a75301c-061b-4013-a73d-61c8c936447e
+ceTaskUrl=http://localhost:9000/api/ce/task?id=2a75301c-061b-4013-a73d-61c8c936447e

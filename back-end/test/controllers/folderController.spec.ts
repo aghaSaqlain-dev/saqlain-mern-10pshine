@@ -21,7 +21,7 @@ const mockPrisma = {
 sinon.stub(require('../../generated/prisma'), 'PrismaClient').returns(mockPrisma);
 
 // Now import the controllers (after mocking)
-import { createFolder, getFolders, updateFolder, deleteFolder } from '../../src/controllers/folderController';
+import {  getFolders, updateFolder, deleteFolder } from '../../src/controllers/folderController';
 
 describe('Folder Controller', () => {
     let req: Partial<Request>;

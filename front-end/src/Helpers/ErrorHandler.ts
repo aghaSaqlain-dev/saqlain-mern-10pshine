@@ -3,7 +3,7 @@ import {toast} from "react-toastify";
 
 export const handleError = (error: any) => {
     if (axios.isAxiosError(error)) {
-        var err = error.response;
+        let err = error.response;
         if (Array.isArray(err?.data.err)) {
            for(let val of err?.data.err) {
                 toast.warning(val.description);

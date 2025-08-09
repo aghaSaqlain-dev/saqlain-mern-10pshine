@@ -119,7 +119,7 @@ export const createNote = async (req: Request, res: Response) => {
             title, 
             folder_id, 
             user_id, 
-            contentLength: content?.length || 0,
+            contentLength: content?.length ?? 0,
             action: 'create_note_attempt' 
         }, 'Creating new note');
         
@@ -210,7 +210,7 @@ export const updateNote = async (req: Request, res: Response) => {
         logger.info({ 
             noteId: id,
             title, 
-            contentLength: content?.length || 0, 
+            contentLength: content?.length ?? 0, 
             folder_id, 
             is_pinned, 
             is_trashed, 
@@ -366,7 +366,6 @@ export const trashedNotes = async(req: Request, res: Response) => {
 export const recoverNote = async(req: Request, res: Response) => {
     try {
         const { id } = req.params; 
-        const {uid} = req.body;
         logger.info({ 
             noteId: id, 
             action: 'recover_note_attempt' 

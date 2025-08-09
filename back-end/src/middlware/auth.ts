@@ -67,7 +67,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
             return;
         }
 
-        const decoded = jwt.verify(token, JWT_SECRET as string);
+        const decoded = jwt.verify(token, JWT_SECRET);
         if (typeof decoded === 'object') {
             req.user = decoded;
             

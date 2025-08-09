@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import RegistrationPage from './RegistrationPage';
 import { MemoryRouter } from 'react-router-dom';
-import { useAuth } from '../../context/useAuth';
 import '@testing-library/jest-dom';
 
 jest.mock('../../context/useAuth', () => ({

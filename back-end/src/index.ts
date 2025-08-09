@@ -1,6 +1,5 @@
 import bodyParser from 'body-parser';
-import express, {Request, Response} from 'express';
-import { NextFunction } from 'express';
+import express, {Request, Response, NextFunction} from 'express';
 import testRoute from './routes/testRoute';
 import authRoute from './routes/authRoute';
 import folderRoute from './routes/folderRoute';
@@ -9,6 +8,7 @@ import {rateLimiter} from './middlware/auth';
 import cors from 'cors';
 import logger from './utils/logger';
 import pinoHttp from 'pino-http';
+import helmet from 'helmet';
 
 const app = express();
 
@@ -52,8 +52,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json({ limit: '50mb', type: 'application/json' }));
 app.use(rateLimiter)
-app.use(cors({})); // Enable CORS for all routes
-const port = process.env.PORT || 3001;
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+})); 
+app.use(helmet.hidePoweredBy());
+const port = process.env.PORT ?? 3001;
 
 app.use('/api', testRoute);
 
