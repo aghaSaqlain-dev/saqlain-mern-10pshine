@@ -78,7 +78,7 @@ const handleSubmit = (e: React.FormEvent) => {
         </div>
         <button type="submit" className="login-btn">LOGIN</button>
         <p className="login-register-link">
-          Don't have an account? <Link to="/registration">Register</Link>
+          Don't have an account? <a href="/registration">Register</a>
         </p>
       </form>
     </div>

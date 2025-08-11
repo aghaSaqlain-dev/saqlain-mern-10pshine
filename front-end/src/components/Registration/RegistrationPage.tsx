@@ -189,7 +189,7 @@ const handleResendOtp = () => {
             </button>  </>
 )}
         <p className="login-register-link">
-          Already have an account? <Link to="/login">Login</Link>
+          Already have an account? <a href="/login">Login</a>
         </p>
       </form>
     </div>
