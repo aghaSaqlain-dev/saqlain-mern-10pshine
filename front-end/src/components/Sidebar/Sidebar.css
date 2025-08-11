@@ -189,3 +189,48 @@
   cursor: not-allowed;
   border: none;
 }
+
+/* Add to your Sidebar.css */
+
+.sidebar-bottom-section {
+  margin-top: auto;
+  border-top: 1px solid #eee;
+  background: rgba(255,255,255,0.95);
+  padding: 12px 0 8px 0;
+}
+
+/* Style the trash item to match your design pattern */
+.sidebar-item.trash-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  margin: 4px 8px 8px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #6b7280;
+  font-size: 1rem;
+  background: rgba(246, 246, 246, 0.8);
+}
+
+.sidebar-item.trash-item:hover {
+  background-color: #e3eafc;
+  color: #374151;
+  transform: translateY(-1px);
+}
+
+/* Hide trash text when sidebar is collapsed */
+.sidebar.collapsed .trash-item span {
+  display: none;
+}
+
+/* Ensure proper spacing when collapsed */
+.sidebar.collapsed .sidebar-bottom-section {
+  padding: 8px 0;
+}
+
+.sidebar.collapsed .trash-item {
+  margin: 4px;
+  justify-content: center;
+}

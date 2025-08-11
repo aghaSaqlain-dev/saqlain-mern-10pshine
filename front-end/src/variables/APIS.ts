@@ -7,3 +7,6 @@ export const API_CREATE_FOLDER = `${API_BASE_URL}/createFolder`;
 export const API_GET_NOTES = `${API_BASE_URL}/notes`;
 export const API_NOTE_DELETE_PERMANENTLY = (note_id: number)=> `${API_BASE_URL}/notes/${note_id}/force`;
 export const API_SUMMARIZE_NOTE = 'http://localhost:5001/api/summarize';
+export const API_GET_TRASH_NOTES = `${API_BASE_URL}/notes/trashed`;
+export const API_RECOVER_NOTE = (noteId: number) => `${API_BASE_URL}/notes/${noteId}/recover`;
+

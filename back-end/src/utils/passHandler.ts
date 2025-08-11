@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 const SALT_ROUNDS = 10;
 
 const hashPass = async (pass: string): Promise<string> =>{ 
-    const salt = await bcrypt.genSaltSync(SALT_ROUNDS);
+    const salt = bcrypt.genSaltSync(SALT_ROUNDS);
     const hashedPassword = bcrypt.hashSync(pass, salt);
     
     return hashedPassword;

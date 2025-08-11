@@ -27,21 +27,21 @@ export const UserProvider = ({ children }: Props) => {
     setIsReady(true);
   }, []);
 
-  // Step 1: Send registration data and request OTP
-  const requestOtp = async (email: string, username: string, password: string) => {
-    return registerAPI(email, username, password)
-      .then((res) => {
-        if (res) {
-          toast.success("OTP sent to your email!");
-          // You should set a state here to show the OTP input in your UI
-        }
-      })
-      .catch(() => toast.warning("Server error occurred"));
-  };
+// Step 1: Send registration data and request OTP
+const requestOtp = (email: string, username: string, password: string): void => {
+  registerAPI(email, username, password)
+    .then((res) => {
+      if (res) {
+        toast.success("OTP sent to your email!");
+        // You should set a state here to show the OTP input in your UI
+      }
+    })
+    .catch(() => toast.warning("Server error occurred"));
+};
 
-  // Step 2: Verify OTP and complete registration
-  const verifyOtpAndRegister = async (email: string, otp: string) => {
-  return verifyOTPAPI(email, otp)
+// Step 2: Verify OTP and complete registration
+const verifyOtpAndRegister = (email: string, otp: string): void => {
+  verifyOTPAPI(email, otp)
     .then((res) => {
       if (res) {
         toast.success("Registered successfully!");
@@ -51,26 +51,26 @@ export const UserProvider = ({ children }: Props) => {
     .catch(() => toast.warning("OTP verification failed"));
 };
 
-  const loginUser = async (username: string, password: string) => {
-    await loginAPI(username, password)
-      .then((res) => {
-        if (res) {
-          localStorage.setItem("token", res?.data.token);
-          const userObj = {
-            userId: res?.data.user.id,
-            userName: res?.data.user.name,
-            email: res?.data.user.email,
-          };
-          localStorage.setItem("user", JSON.stringify(userObj));
-          setToken(res?.data.token!);
-          setUser(userObj!);
-          toast.success("Login Success!");
-          console.log(localStorage.getItem("user"));
-          navigate("/dashboard");
-        }
-      })
-      .catch(() => toast.warning("Server error occured"));
-  };
+const loginUser = (username: string, password: string): void => {
+  loginAPI(username, password)
+    .then((res) => {
+      if (res) {
+        localStorage.setItem("token", res?.data.token);
+        const userObj = {
+          userId: res?.data.user.id,
+          userName: res?.data.user.name,
+          email: res?.data.user.email,
+        };
+        localStorage.setItem("user", JSON.stringify(userObj));
+        setToken(res?.data.token);
+        setUser(userObj);
+        toast.success("Login Success!");
+        console.log(localStorage.getItem("user"));
+        navigate("/dashboard");
+      }
+    })
+    .catch(() => toast.warning("Server error occured"));
+};
 
   const isLoggedIn = (): boolean => {
     return !!token && !!user;
@@ -85,18 +85,21 @@ export const UserProvider = ({ children }: Props) => {
     // Optionally, reset OTP UI state here if you have one
   };
 
+  const contextValue = React.useMemo(
+    () => ({
+      loginUser,
+      user,
+      token,
+      logout,
+      isLoggedIn,
+      requestOtp,
+      verifyOtpAndRegister,
+    }),
+    [loginUser, user, token, logout, isLoggedIn, requestOtp, verifyOtpAndRegister]
+  );
+
   return (
-    <UserContext.Provider
-      value={{
-        loginUser,
-        user,
-        token,
-        logout,
-        isLoggedIn,
-        requestOtp,
-        verifyOtpAndRegister,
-      } as UserContextType}
-    >
+    <UserContext.Provider value={contextValue as UserContextType}>
       {isReady ? children : null}
     </UserContext.Provider>
   );

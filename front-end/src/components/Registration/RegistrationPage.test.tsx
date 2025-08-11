@@ -1,52 +1,128 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import RegistrationPage from './RegistrationPage';
-import { MemoryRouter } from 'react-router-dom';
-import { useAuth } from '../../context/useAuth';
-import '@testing-library/jest-dom';
-
+const mockRequestOtp = jest.fn();
+const mockVerifyOtpAndRegister = jest.fn();
 jest.mock('../../context/useAuth', () => ({
   useAuth: () => ({
-    registerUser: jest.fn(),
+    requestOtp: mockRequestOtp,
+    verifyOtpAndRegister: mockVerifyOtpAndRegister,
   }),
 }));
 
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import RegistrationPage from './RegistrationPage';
+
 describe('RegistrationPage', () => {
-  it('renders all input fields and button', () => {
-    render(
-      
-        <RegistrationPage />
-      
-    );
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders registration form', () => {
+    render(<RegistrationPage />);
+    
     expect(screen.getByPlaceholderText('Username')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Email ID')).toBeInTheDocument();
-    expect(screen.getAllByPlaceholderText('Password')[0]).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Confirm Password')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /register/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
+    expect(screen.getByText('REGISTER')).toBeInTheDocument();
   });
 
-  it('shows validation errors for empty fields', () => {
-    render(
-      <MemoryRouter>
-        <RegistrationPage />
-      </MemoryRouter>
-    );
-    fireEvent.click(screen.getByRole('button', { name: /register/i }));
-    expect(screen.getByText('Username is required')).toBeInTheDocument();
-    expect(screen.getByText('Email is required')).toBeInTheDocument();
-    expect(screen.getByText('Password is required')).toBeInTheDocument();
+  it('shows validation errors', async () => {
+    render(<RegistrationPage />);
+    
+    fireEvent.click(screen.getByText('REGISTER'));
+    
+    await waitFor(() => {
+      expect(screen.getByText('Username is required')).toBeInTheDocument();
+      expect(screen.getByText('Email is required')).toBeInTheDocument();
+      expect(screen.getByText('Password is required')).toBeInTheDocument();
+    });
   });
 
-  it('shows error if passwords do not match', () => {
-    render(
-      <MemoryRouter>
-        <RegistrationPage />
-      </MemoryRouter>
-    );
-    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'user' } });
-    fireEvent.change(screen.getByPlaceholderText('Email ID'), { target: { value: 'user@email.com' } });
-    fireEvent.change(screen.getAllByPlaceholderText('Password')[0], { target: { value: 'pass1' } });
-    fireEvent.change(screen.getByPlaceholderText('Confirm Password'), { target: { value: 'pass2' } });
-    fireEvent.click(screen.getByRole('button', { name: /register/i }));
-    expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
+  it('shows password mismatch error', async () => {
+    render(<RegistrationPage />);
+    
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByPlaceholderText('Email ID'), { target: { value: 'test@test.com' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('Confirm Password'), { target: { value: 'different' } });
+    
+    fireEvent.click(screen.getByText('REGISTER'));
+    
+    await waitFor(() => {
+      expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
+    });
+  });
+
+  it('requests OTP on valid form', async () => {
+    render(<RegistrationPage />);
+    
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByPlaceholderText('Email ID'), { target: { value: 'test@test.com' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('Confirm Password'), { target: { value: 'password123' } });
+    
+    fireEvent.click(screen.getByText('REGISTER'));
+    
+    await waitFor(() => {
+      expect(mockRequestOtp).toHaveBeenCalledWith('test@test.com', 'testuser', 'password123');
+    });
+  });
+
+  it('shows OTP input after registration', async () => {
+    render(<RegistrationPage />);
+    
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByPlaceholderText('Email ID'), { target: { value: 'test@test.com' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('Confirm Password'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByText('REGISTER'));
+    
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Enter OTP')).toBeInTheDocument();
+      expect(screen.getByText('VERIFY OTP')).toBeInTheDocument();
+    });
+  });
+
+  it('verifies OTP', async () => {
+    render(<RegistrationPage />);
+    
+    // Complete registration first
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByPlaceholderText('Email ID'), { target: { value: 'test@test.com' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('Confirm Password'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByText('REGISTER'));
+    
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Enter OTP')).toBeInTheDocument();
+    });
+    
+    // Enter and verify OTP
+    fireEvent.change(screen.getByPlaceholderText('Enter OTP'), { target: { value: '123456' } });
+    fireEvent.click(screen.getByText('VERIFY OTP'));
+    
+    await waitFor(() => {
+      expect(mockVerifyOtpAndRegister).toHaveBeenCalledWith('test@test.com', '123456');
+    });
+  });
+
+  it('shows OTP required error', async () => {
+    render(<RegistrationPage />);
+    
+    // Complete registration first
+    fireEvent.change(screen.getByPlaceholderText('Username'), { target: { value: 'testuser' } });
+    fireEvent.change(screen.getByPlaceholderText('Email ID'), { target: { value: 'test@test.com' } });
+    fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: 'password123' } });
+    fireEvent.change(screen.getByPlaceholderText('Confirm Password'), { target: { value: 'password123' } });
+    fireEvent.click(screen.getByText('REGISTER'));
+    
+    await waitFor(() => {
+      expect(screen.getByText('VERIFY OTP')).toBeInTheDocument();
+    });
+    
+    // Submit without OTP
+    fireEvent.click(screen.getByText('VERIFY OTP'));
+    
+    await waitFor(() => {
+      expect(screen.getByText('OTP is required')).toBeInTheDocument();
+    });
   });
 });

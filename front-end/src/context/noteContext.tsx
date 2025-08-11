@@ -1,11 +1,19 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useMemo } from "react";
 import axios from 'axios';
-import { noteContextType } from "../Models/note";
-import { Note } from "../Models/note";
-import { API_GET_NOTES, API_NOTE_DELETE_PERMANENTLY } from "../variables/APIS";
+import { noteContextType, Note } from "../Models/note";
+import { API_GET_NOTES, API_NOTE_DELETE_PERMANENTLY, API_RECOVER_NOTE, API_GET_TRASH_NOTES } from "../variables/APIS";
 import { newlyCreatedNoteContent } from "../variables/Varibles";
-// Add this import for toast
 import { toast } from "react-toastify";
+
+// Is your context object complex (3+ properties)?
+// ├─ No → Don't use useMemo
+// └─ Yes
+//    └─ Do you have 3+ components consuming it?
+//       ├─ No → Probably don't need useMemo
+//       └─ Yes
+//          └─ Does the context value change frequently?
+//             ├─ No → Don't use useMemo
+//             └─ Yes → ✅ Use useMemo
 
 const noteContext = createContext<noteContextType>({} as any);
 
@@ -29,7 +37,6 @@ export const NoteProvider = ({ children }: { children: React.ReactNode }) => {
       ]);
       return response.data;
     } catch (error) {
-      //toast.error("Failed to fetch notes");
       console.error("Failed to fetch notes", error);
       return [];
     }
@@ -69,7 +76,6 @@ export const NoteProvider = ({ children }: { children: React.ReactNode }) => {
           note.id === noteId ? { ...note, ...updatedNote } : note
         )
       );
-      //toast.success("Note updated successfully");
       return res.data;
     } catch (error) {
       toast.error("Failed to update note");
@@ -104,11 +110,91 @@ export const NoteProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  return (
-    <noteContext.Provider value={{ getUserNotes, createNote, updateNote, deleteNote, notes, setNotes, forceDeleteNote }}>
+  const fetchTrashedNotes = async (): Promise<Note[]> => {
+    try {
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem("user");
+      const user = userStr ? JSON.parse(userStr) : null;
+      const uid = user?.userId;
+       if (!uid) {
+        toast.error("User ID not found in localStorage");
+        throw new Error("User ID not found in localStorage");
+      }
+      const response = await fetch(API_GET_TRASH_NOTES, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ uid })
+      });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data)
+            return data;
+        } else {
+            throw new Error('Failed to fetch trashed notes');
+        }
+    } catch (error) {
+        console.error('Error fetching trashed notes:', error);
+        throw error;
+    }
+};
+
+// In your noteContext.tsx - recoverNote function
+const recoverNote = async (noteId: number): Promise<void> => {
+    try {
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem("user");
+      const user = userStr ? JSON.parse(userStr) : null;
+      const uid = user?.userId;
+       if (!uid) {
+        toast.error("User ID not found in localStorage");
+        throw new Error("User ID not found in localStorage");
+      }
+        const response = await fetch(API_RECOVER_NOTE(noteId), { // Make sure this matches your route
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({uid : uid})
+        });
+
+        console.log('Frontend: Response status:', response.status); // Add this too
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message ?? 'Failed to recover note');
+        }
+        
+        toast.success("Note recovered successfully");
+    } catch (error) {
+        console.error('Frontend: Error recovering note:', error);
+        toast.error("Failed to recover note");
+        throw error;
+    }
+};
+const contextValue = useMemo(() => ({
+    getUserNotes,
+    createNote,
+    updateNote,
+    deleteNote,
+    notes,
+    setNotes,
+    forceDeleteNote,
+    fetchTrashedNotes,
+    recoverNote
+  }), [notes]); // Only recreate when notes change
+  //Components using this context will only re-render when notes actually changes
+
+ return (
+    <noteContext.Provider value={contextValue}>
       {children}
     </noteContext.Provider>
   );
 };
+
 
 export const useNoteContext = () => useContext(noteContext)

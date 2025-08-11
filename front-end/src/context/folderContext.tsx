@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode, use } from "react";
+import { createContext, useContext, useState, ReactNode, useMemo } from "react";
 import { folderContextType, Folder } from "../Models/folder";
 import axios from 'axios';
 import { API_GET_FOLDERS , API_CREATE_FOLDER } from "../variables/APIS";
@@ -17,15 +17,12 @@ export const FolderProvider = ({ children }: { children: ReactNode }) => {
          const userId = user?.userId;
          if (!userId) {
             console.error("User ID not found in localStorage");
-           // toast.error("User ID not found.");
             return;
          }
          const response = await axios.post(API_GET_FOLDERS, { uid: userId });
          setFolders(response.data);
-        // toast.success("Folders fetched successfully!");
       } catch (error) {
          console.error("Failed to fetch folders", error);
-         //toast.error("Failed to fetch folders.");
       }
    };
 
@@ -53,7 +50,6 @@ export const FolderProvider = ({ children }: { children: ReactNode }) => {
             console.error("Failed to create folder:", response.data);
          }
       } catch (error) {
-         toast.error("Error creating folder.");
          console.error("Error creating folder:", error);
       }
    };
@@ -98,8 +94,21 @@ export const FolderProvider = ({ children }: { children: ReactNode }) => {
       }
    };
 
+
+   const contextValue = useMemo(
+      () => ({
+         folders,
+         setFolders,
+         getUserFolders,
+         createFolder,
+         updateFolder,
+         deleteFolder
+      }) as folderContextType,
+      [folders, setFolders, getUserFolders, createFolder, updateFolder, deleteFolder]
+   );
+
    return (
-      <folderContext.Provider value={{ folders, setFolders, getUserFolders, createFolder, updateFolder, deleteFolder } as folderContextType}>
+      <folderContext.Provider value={contextValue}>
          {children}
       </folderContext.Provider>
    );

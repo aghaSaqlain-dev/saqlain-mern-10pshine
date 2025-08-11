@@ -9,7 +9,12 @@ export type Note = {
     created_at: string;
     updated_at: string;
     content: JSON;
-
+    folder?: { 
+        id: number;
+        domain: string;
+        color?: string;
+    };
+    trashed_at?: string;
 };
 
 export type noteContextType = {
@@ -20,4 +25,7 @@ export type noteContextType = {
     forceDeleteNote: (noteId: number) => Promise<boolean>;
     notes: Note[];
     setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
+    fetchTrashedNotes: () => Promise<Note[]>;
+    recoverNote: (id: number) => Promise<void>;
 }
+

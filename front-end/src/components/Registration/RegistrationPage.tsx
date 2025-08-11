@@ -26,11 +26,11 @@ const RegistrationPage = (props: Props) => {
     if (timerRef.current) clearInterval(timerRef.current);
   };
 }, []);
-const handleResendOtp = async () => {
+const handleResendOtp = () => {
   setOtpExpired(false);
   setOtp('');
   setErrors(prev => ({ ...prev, otp: undefined }));
-  await requestOtp(email, userName, password);
+  requestOtp(email, userName, password);
   setOtpTimer(60);
   if (timerRef.current) clearInterval(timerRef.current);
   timerRef.current = setInterval(() => {
@@ -45,7 +45,7 @@ const handleResendOtp = async () => {
   }, 1000);
 };
 
- const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = (e: React.FormEvent) => {
   e.preventDefault();
   if (isRegistering) return; // Prevent double submit
   setIsRegistering(true);
@@ -61,7 +61,7 @@ const handleResendOtp = async () => {
     return;
   }
 
-  await requestOtp(email, userName, password);
+  requestOtp(email, userName, password);
   setShowOtpInput(true);
   setOtpTimer(60);
   setOtpExpired(false);
@@ -80,7 +80,7 @@ const handleResendOtp = async () => {
   setIsRegistering(false);
 };
 
-  const handleOtpSubmit = async (e: React.FormEvent) => {
+  const handleOtpSubmit =  (e: React.FormEvent) => {
     e.preventDefault();
     if (isVerifyingOtp) return; 
     setIsVerifyingOtp(true);
@@ -96,7 +96,7 @@ const handleResendOtp = async () => {
       setIsVerifyingOtp(false);
       return;
     }
-    await verifyOtpAndRegister(email, otp);
+    verifyOtpAndRegister(email, otp);
     setIsVerifyingOtp(false);
   };
 
@@ -120,7 +120,7 @@ const handleResendOtp = async () => {
             </div>
             {errors.userName && <span className="login-error">{errors.userName}</span>}
             <div className="login-input-group">
-              <span className="login-input-icon" role="img" aria-label="email">📧</span>
+              <img className="login-input-icon" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Ctext y='16' font-size='16'%3E%F0%9F%93%A7%3C/text%3E%3C/svg%3E" alt="email" />
               <input
                 type="email"
                 placeholder="Email ID"
@@ -189,7 +189,7 @@ const handleResendOtp = async () => {
             </button>  </>
 )}
         <p className="login-register-link">
-          Already have an account? <Link to="/login">Login</Link>
+          Already have an account? <a href="/login">Login</a>
         </p>
       </form>
     </div>

@@ -57,8 +57,13 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 },
   });
 
+  const contextValue = React.useMemo(
+    () => ({ editor, wordCount, pageCount }),
+    [editor, wordCount, pageCount]
+  );
+
   return (
-    <EditorContext.Provider value={{ editor, wordCount, pageCount}}>
+    <EditorContext.Provider value={contextValue}>
       {children}
     </EditorContext.Provider>
   );
